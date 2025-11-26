@@ -41,32 +41,12 @@ PHPue combines the simplicity of PHP with Vue-like templating syntax to create f
 </template>
 ```
 
-**Vue's Style Setup Tag**
-
-- Set up calls and ensures PHP session is started.
-- Only needs to be called in App.vue, unless you need to ensure the session is started.
-- setup tag is not required in views or components.
-- Another use is setup only being used in views, so you make scoped session starts!
-- Unless you are using global AJAX functions that rely on the session!
-```html
-<script setup>
-
-</script>
-```
-
-Alternative:
-```html
-<script>
-
-</script>
-```
-
 **📦 Import System**
 
 Component Importing
 
 ```html
-<script setup>
+<script>
     @require Navbar 'components/Navbar.pvue';
     @require Footer 'components/Footer.pvue';
 </script>
@@ -75,7 +55,7 @@ Component Importing
 **View Importing (with name)**
 
 ```html
-<script setup>
+<script>
     #require Home 'views/index.pvue';
     #require About 'views/about.pvue';
     #require Contact 'views/contact.pvue';
@@ -85,7 +65,7 @@ Component Importing
 **View Importing (auto-named)**
 
 ```html
-<script setup>
+<script>
     #require 'views/index.pvue';
     #require 'views/about.pvue';
 </script>
@@ -94,7 +74,7 @@ Component Importing
 **Traditional PHP Includes**
 
 ```html
-<script setup>
+<script>
     require_once 'config/database.php';
     require 'helpers/functions.php';
 </script>
@@ -139,47 +119,7 @@ Component Importing
 </template>
 ```
 
-**p-model** - Two-Way Data Binding (NOT IMPLEMENTED, BUT HAVE PLANS ON HOW!)
-
-```html
-<template>
-    <form method="POST">
-        <div class="form-group">
-            <label>Name:</label>
-            <input type="text" p-model="$name" class="form-control">
-            <small>Current value: {{ $name }}</small>
-        </div>
-        
-        <div class="form-group">
-            <label>Email:</label>
-            <input type="email" p-model="$email" class="form-control">
-        </div>
-        
-        <div class="form-group">
-            <label>Message:</label>
-            <textarea p-model="$message" class="form-control" rows="4"></textarea>
-        </div>
-        
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-</template>
-
-<script>
-    $name = "";
-    $email = "";
-    $message = "";
-    
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $name = $_POST['name'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $message = $_POST['message'] ?? '';
-        
-        // Process form data...
-    }
-</script>
-```
-
-IF any p-directive doesn't work, or you required PHP functions in template, for example v-if or v-for breaks in certain ways, due to the early stages of the framework, you can use PHP-style coding instead of v-if, v-for and {{ }}.
+IF any p-directive doesn't work, or you required PHP functions in template, for example p-if or p-for breaks in certain ways, due to the early stages of the framework, you can use PHP-style coding instead of p-if, p-for and {{ }}.
 
 Our framework doesn't butcher PHP, JS, or HTML, we just enhance it. (PHP is allowed in all taglines, HTML and JS are not! This helps us understand what parts are SSR, and when we will require JS Client Side Rendering.
 
@@ -199,7 +139,8 @@ You can use this instead:-
         ?>
     </div>
 
-    <!-- or if you needed to echo PHP variable because {{ $fruits }} doesn't handle array imploding (and I believe functions don't yet work, it's just simply designed to echo the variable). -->
+    <!-- or if you needed to echo PHP variable because {{ $fruits }} doesn't handle array imploding, for {{}} ==> <?= htmlspecialchars($string) ?>
+    - The framework detects {{ and $ for variable, or it won't generate as above! For example {{ $showColourRed ?? 'color: red;' : 'color: blue;' }} works! -->
     <div>
         <?= implode(', ', $fruits); ?>
     </div>
@@ -210,16 +151,28 @@ You can use this instead:-
 App.pvue (Root Component)
 ```html
 <!-- Author: Your Name -->
-<script setup>
+<script>
     @require Navbar 'components/Navbar.pvue';
     #require Home 'views/index.pvue';
     #require About 'views/about.pvue';
     #require Contact 'views/contact.pvue';
 
-    $routes = phpue_navigation();
+    // Dynamic Meta Tags are easier to control with our custom extension:
+    // Or get inspired and create your own control!
+    // backend/ is auto-loaded before the framework headers are sent!
+    https://github.com/PHPue/PHPue-Extensions/tree/PHPue-Extensions/phpue-metacontrol
+
+    // Only set dynamic pages that don't contain a static HTML title!
+    $pageTitle = "";
+    if($currentRoute === 'index' || $currentRoute === '') {
+        $pageTitle = "SSR Generated Index Page!";
+    }
+    
 </script>
 
 <header>
+    <!-- Dynamic Headers - No PHP Allowed for Safety! -->
+    {{ $pageTitle }}
     <!-- Global headers, styles, scripts -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -236,8 +189,6 @@ App.pvue (Root Component)
 
 ```html
 <script>
-    // Server-side PHP code
-    $pageTitle = "Home Page";
     $featuredProducts = [
         ['name' => 'Product 1', 'price' => 29.99],
         ['name' => 'Product 2', 'price' => 39.99]
@@ -246,24 +197,45 @@ App.pvue (Root Component)
 </script>
 
 <header>
-    <!-- Page-specific headers -->
-    <title>{{ $pageTitle }}</title>
     <meta name="description" content="Welcome to our amazing website">
     <meta name="keywords" content="php, vue, framework">
+
+    <style>
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        /* Hover effect */
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            background-color: #f9f9f9;
+        }
+
+        /* Selected effect (click) */
+        .product-card.selected {
+            border: 2px solid #00f;
+            background-color: #e0f0ff;
+        }
+    </style>
 </header>
 
 <template>
     <div class="container">
-        <h1>{{ $pageTitle }}</h1>
+        <h1>Hello, <span>{{ $user['name'] }}</span></h1>
         
-        <div p-if="$user.isAdmin" class="admin-panel">
+        <div p-if="$user['isAdmin']" class="admin-panel">
             <button class="btn btn-warning">Admin Controls</button>
         </div>
         
         <div class="products">
             <div p-for="$product in $featuredProducts" class="product-card">
-                <h3>{{ $product.name }}</h3>
-                <p class="price">${{ $product.price }}</p>
+                <h3>{{ $product['name'] }}</h3>
+                <p class="price">{{ $product['price'] }}</p>
             </div>
         </div>
     </div>
@@ -294,7 +266,9 @@ App.pvue (Root Component)
 🚀 Production Runtime
 ```bash
 # Start development/production-ready server with hot reload
-php index.php
+php -S localhost:3000
+# then add ?live to the page your checking!
+# Docker injects Hot Reload automatically!
 ```
 
 # Visit: http://localhost:3000/
@@ -393,6 +367,10 @@ Create a view:
     $items = ['Learn', 'Build', 'Deploy'];
 </script>
 
+<header>
+    <title>Home Page</title>
+</header>
+
 <template>
     <div class="container">
         <h1>{{ $message }}</h1>
@@ -406,7 +384,7 @@ Create a view:
 Start development:
 
 ```bash
-php index.php
+php -S localhost:3000
 ```
 
 💡 Why PHPue?
@@ -415,6 +393,14 @@ php index.php
 ✅ Hot Reload - Instant development feedback
 
 ✅ Vue-Inspired Syntax - Familiar and intuitive
+
+✅ AJAX Decoration
+
+✅ Unified File Structure - Accessible PHP, HTML, and JS!
+
+✅ No Framework Lock In ! - Use PHP scripts where you need!
+
+✅ Auto Loader Classes (backend/) - Instead of Middleware!
 
 ✅ PHP Power - Full access to PHP ecosystem
 
