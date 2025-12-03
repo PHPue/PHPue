@@ -1,0 +1,8 @@
+RewriteEngine On
+
+# Ensure the request is not for an actual file or directory
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirect all requests to index.php with the requested URL as a 'page' parameter
+RewriteRule ^(.*)$ index.php?page=$1 [QSA,L]
