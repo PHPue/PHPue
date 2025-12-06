@@ -153,9 +153,9 @@ App.pvue (Root Component)
 <!-- Author: Your Name -->
 <script>
     @require Navbar 'components/Navbar.pvue';
-    #require Home 'views/index.pvue';
-    #require About 'views/about.pvue';
-    #require Contact 'views/contact.pvue';
+    #require 'views/index.pvue';
+    #require 'views/about.pvue';
+    #require 'views/contact.pvue';
 
     // Dynamic Meta Tags are easier to control with our custom extension:
     // Or get inspired and create your own control!
