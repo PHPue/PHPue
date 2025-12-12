@@ -1,8 +1,27 @@
 <?php
-    define('PHPUE_VERSION', '0.0.1');
-    
-    require_once 'conversion.php';
+    define('PHPUE_VERSION', '0.0.2');
 
+    /*  ================ VERSION 0.0.2 ================
+        - Added OB START - Can now send headers from backend/ or from .pvue files!
+        - Added a new deployment method, use .dist/ or copy and paste the files inside
+            .dist/ and extract them in root (www/, public_html/) as is!
+        - Added HTML LANG (instead of defaulting to 'en')
+        - Added Static View Langs (use <header><meta name="lang" content="br"></header>)
+        - Modified Hot Reload: Now will check for any file changes whether inside view/ 
+            or components/
+    */
+    if (php_sapi_name() === 'cli') {
+        $_SERVER['REQUEST_URI'] = $_SERVER['REQUEST_URI'] ?? '/';
+        $_SERVER['SERVER_NAME'] = $_SERVER['SERVER_NAME'] ?? 'localhost';
+        $_SERVER['SERVER_ADDR'] = $_SERVER['SERVER_ADDR'] ?? '127.0.0.1';
+    }
+
+    define('PHPUE_LANG', 'en');
+
+    ob_start();
+
+    require_once 'conversion.php';
+    
     class PHPueServer {
         public $bDevMode;
         public $bLiveMode;
@@ -28,15 +47,16 @@
         }
 
         public function build() {
-            global $argv; // Need to access argv inside the method
+            global $argv;
             
-            // Check if .dist/ exists AND this is NOT a CLI build command
+            $distAppExists = file_exists('.dist/App.php');
+            $standaloneAppExists = file_exists('App.php');
             $isCliBuild = (isset($argv[1]) && $argv[1] === 'build');
-            if (is_dir('.dist') && !$isCliBuild) {
-                echo "❌ Build disabled - .dist/ directory already exists\n";
-                echo "   This appears to be a production environment\n";
-                echo "   To force rebuild, use: php index.php build\n";
-                return;
+
+            if (($distAppExists || $standaloneAppExists) && !$isCliBuild) {
+                $basePath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+                header('Location: ' . $basePath);
+                exit;
             }
             
             $this->ensureDistDirectory();
@@ -70,7 +90,7 @@
             return $_SERVER['SERVER_NAME'] === 'localhost' || $_SERVER['SERVER_ADDR'] === '127.0.0.1' || isset($_GET['dev']);
         }
 
-       private function handleHotReload() {
+        private function handleHotReload() {
             $bLiveMode = isset($_GET['live']) || $this->bLiveMode;
             
             if (!$bLiveMode) {
@@ -99,10 +119,12 @@
                     ob_end_clean();
                 }
                 
+                // Get all .pvue and .php files in components/ and views/ directories
                 $files = array_merge(
-                    glob('*.pvue'),
-                    glob('components/*.pvue'), 
-                    glob('views/*.pvue')
+                    glob('components/*.{pvue,php}', GLOB_BRACE),
+                    glob('components/**/*.{pvue,php}', GLOB_BRACE),
+                    glob('views/*.{pvue,php}', GLOB_BRACE),
+                    glob('views/**/*.{pvue,php}', GLOB_BRACE)
                 );
 
                 $changed = false;
@@ -151,6 +173,7 @@
         private function serveApp()
         {
             $distApp = '.dist/App.php';
+            $standaloneApp = 'App.php'; 
             $appPVue = 'App.pvue';
             
             $currentRoute = $_GET['page'] ?? 'index';
@@ -164,14 +187,25 @@
             
             if(file_exists($distApp) && is_dir('.dist')) {
                 $this->serveFromDist();
-            } elseif(file_exists($appPVue)) {
+            }
+
+            elseif(file_exists($standaloneApp)) {
+                $this->serveFromStandalone();
+            }
+
+            elseif(file_exists($appPVue)) {
                 $this->serveFromSource();
-            } else {
+            } 
+            
+            else {
                 http_response_code(500);
-                echo "Error: Neither App.pvue nor .dist/App.php found";
+                echo "Error: No App file found. Looking for:<br>";
+                echo "- .dist/App.php (compiled)<br>";
+                echo "- App.php (standalone)<br>";
+                echo "- App.pvue (source)<br>";
             }
         }
-        
+
         private function serveFromDist() {
             $distApp = '.dist/App.php';
             
@@ -182,7 +216,18 @@
                 echo "Error: .dist/App.php not found";
             }
         }
-        
+
+        private function serveFromStandalone() {
+            $standaloneApp = 'App.php';
+            
+            if(file_exists($standaloneApp)) {
+                include $standaloneApp;
+            } else {
+                http_response_code(500);
+                echo "Error: App.php not found";
+            }
+        }
+
         private function serveFromSource() {
             $appPVue = 'App.pvue';
             
@@ -395,4 +440,6 @@
     }
 
     $server->serve();
+    ob_end_flush();
+    /*  ================ END | VERSION 0.0.2 | END ================ */
 ?>

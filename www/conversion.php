@@ -67,6 +67,18 @@
                 $meta['title'] = $titleContent;
             }
             
+            /*  ================ VERSION 0.0.2 ================
+                - Added HTML LANG (instead of defaulting to 'en')
+                - Added Static View Langs (use <header><meta name="lang" content="br"></header>)
+            */
+            if (preg_match('/<meta\s+name="lang"\s+content="([^"]+)"/', $headerContent, $matches))
+                $meta['lang'] = $matches[1];
+            elseif (preg_match('/<!--\s*lang:\s*(\w+)\s*-->/', $headerContent, $matches))
+                $meta['lang'] = $matches[1];
+            else
+                $meta['lang'] = 'en';
+            /*  ================ END | VERSION 0.0.2 | END ================ */
+            
             $processedHeader = $this->processHeaderTemplates($headerContent);
             
             $meta['raw_header'] = $headerContent;
@@ -167,7 +179,7 @@
                 }
             }
             
-            $compiledIndex = '.dist/pages/index.php';
+            $compiledIndex = file_exists('pages/index.php') ? 'pages/index.php' : '.dist/pages/index.php';
             if (file_exists($compiledIndex)) {
                 ob_start();
                 include $compiledIndex;
@@ -472,17 +484,17 @@
             foreach ($this->ajaxFunctions as $pageName => $functions) {
                 if (empty($pageName)) continue;
                 
-                $isView = false;
+                $bView = false;
                 foreach ($this->routing->routes as $routeName => $route) {
                     if ($routeName === $pageName) {
-                        $isView = true;
+                        $bView = true;
                         break;
                     }
                 }
                 
-                $isApp = ($pageName === 'App');
+                $bApp = ($pageName === 'App');
                 
-                if (!$isView && !$isApp) {
+                if (!$bView && !$bApp) {
                     continue;
                 }
                 
@@ -597,7 +609,7 @@
             return $matches[1] ?? '';
         }
         
-        private function handleRequires($scriptContent, $isRoot = true) {
+        private function handleRequires($scriptContent) {
             preg_match_all('/@require\s+(\w+)\s+\'([^\']+)\'\s*;?/', $scriptContent, $componentRequires, PREG_SET_ORDER);
             
             $componentMap = [];
@@ -752,9 +764,9 @@
                 $cscript
             );
             
-            $isModule = preg_match('/^\s*(import|export)\s+/m', $cscript);
+            $bModule = preg_match('/^\s*(import|export)\s+/m', $cscript);
             
-            if ($isModule) {
+            if ($bModule) {
                 return "<script type=\"module\">\n" . $cscript . "\n</script>";
             } else {
                 return "<script>\n" . $cscript . "\n</script>";
@@ -764,7 +776,13 @@
         private function buildOutput($script, $template, $cscript, $bRoot, $header = '') {
             $output = "<?php\n";
                         
-             $output .= "// Auto-load backend classes\n";
+            /*  ================ VERSION 0.0.2 ================
+                - Added autoload.php detection!
+                - Use bruteforce to load classes, 
+                - or find autoload.php to choose a order by vendor/ or the developer!
+                - Stops the "class has already been declared" bug. Happy Days!
+            */
+            $output .= "// Auto-load backend classes\n";
             $output .= "// Determine correct backend path for current environment\n";
             $output .= "if (defined('PHPUE_BUILD_MODE') && PHPUE_BUILD_MODE === true) {\n";
             $output .= "    // Build mode: use source backend\n";
@@ -775,20 +793,36 @@
             $output .= "}\n";
             $output .= "if (is_dir(\$backendDir)) {\n";
             $output .= "    \$iterator = new RecursiveIteratorIterator(\n";
-            $output .= "        new RecursiveDirectoryIterator(\$backendDir, RecursiveDirectoryIterator::SKIP_DOTS)\n";
+            $output .= "        new RecursiveCallbackFilterIterator(\n";
+            $output .= "            new RecursiveDirectoryIterator(\$backendDir, RecursiveDirectoryIterator::SKIP_DOTS),\n";
+            $output .= "            function (\$current, \$key, \$iterator) {\n";
+            $output .= "                // If this directory has autoload.php → include it and skip deeper scan\n";
+            $output .= "                if (\$current->isDir()) {\n";
+            $output .= "                    \$autoload = \$current->getPathname() . '/autoload.php';\n";
+            $output .= "                    if (file_exists(\$autoload)) {\n";
+            $output .= "                        require_once \$autoload;\n";
+            $output .= "                        return false; // Do not go deeper\n";
+            $output .= "                    }\n";
+            $output .= "                }\n";
+            $output .= "                return true; // Continue scanning\n";
+            $output .= "            }\n";
+            $output .= "        ),\n";
+            $output .= "        RecursiveIteratorIterator::SELF_FIRST\n";
             $output .= "    );\n";
+            $output .= "\n";
             $output .= "    foreach (\$iterator as \$file) {\n";
-            $output .= "        if (\$file->getExtension() === 'php') {\n";
+            $output .= "        if (\$file->isFile() && \$file->getExtension() === 'php') {\n";
             $output .= "            require_once \$file->getPathname();\n";
             $output .= "        }\n";
             $output .= "    }\n";
             $output .= "}\n\n";
+            /*  ================ END | VERSION 0.0.2 | END ================ */
 
             // Pre-determine 404 status for header injection
             $output .= "\$current_route = \$_GET['page'] ?? 'index';\n";
             $output .= "\$routing = get_phpue_routing();\n";
-            $output .= "\$is_404 = !isset(\$routing->routes[\$current_route]);\n";
-            $output .= "if (\$is_404) {\n";
+            $output .= "\$b404 = !isset(\$routing->routes[\$current_route]);\n";
+            $output .= "if (\$b404) {\n";
             $output .= "    if (file_exists('httpReqs/http404Head.php')) {\n";
             $output .= "        include 'httpReqs/http404Head.php';\n";
             $output .= "        \$GLOBALS['phpue_http404_header'] = \$phpue_header ?? '';\n";
@@ -874,8 +908,21 @@
             $output .= "?>\n";
 
             if ($bRoot) {
+                /*  ================ VERSION 0.0.2 ================
+                    - Added HTML LANG (instead of defaulting to 'en')
+                    - Added Static View Langs (use <header><meta name="lang" content="br"></header>)
+                */
+                $globalLang = defined('PHPUE_LANG') ? PHPUE_LANG : 'en';
+                $current_route = $_GET['page'] ?? 'index';
+                $routing = get_phpue_routing();
+                $route_meta = $routing->getRouteMeta($current_route);
+                $viewLang = $route_meta['lang'] ?? null;
+
+                $htmlLang = $viewLang ?? $globalLang;
+                /*  ================ END | VERSION 0.0.2 | END ================ */
+
                 $output .= "<!DOCTYPE html>\n";
-                $output .= "<html>\n";
+                $output .= "<html lang=\"$htmlLang\">\n";
                 $output .= "<head>\n";
                 $output .= "<?php\n";
                 $output .= "// Output main App header\n";
@@ -936,10 +983,16 @@
             
             $routing = $converter->getRouting();
             
-            $distAppExists = file_exists('.dist/App.php');
+            // NEW: Check both locations for compiled pages
+            $compiledPages = [];
+            if (is_dir('.dist/pages')) {
+                $compiledPages = array_merge($compiledPages, glob('.dist/pages/*.php'));
+            }
+            if (is_dir('pages')) {
+                $compiledPages = array_merge($compiledPages, glob('pages/*.php'));
+            }
             
-            if ($distAppExists) {
-                $compiledPages = glob('.dist/pages/*.php');
+            if (!empty($compiledPages)) {
                 foreach ($compiledPages as $page) {
                     $routing->addCompiledView($page);
                 }
@@ -952,7 +1005,7 @@
             
             $currentRoute = $_GET['page'] ?? 'index';
             
-            if (!$distAppExists) {
+            if (empty($compiledPages)) {
                 $sourceFile = $routing->routes[$currentRoute]['file'] ?? 'views/index.pvue';
                 $routing->preProcessCurrentPage($sourceFile);
             }
