@@ -1,6 +1,6 @@
 # ❤️ PHP Power + Vue Syntax = PHPue | <img src="https://phpue.co.uk/assets/img/favicon_io/android-chrome-512x512.png" width="45" height="45" alt="PHPue Logo">
 
-> **Build Vue-like apps in pure PHP • Hot reload included • 300+ developers believe in less complexity and developer joy!**
+> **Build Vue-like apps in pure PHP • Hot reload included • 400+ developers believe in less complexity and developer joy!**
 
 > *Join the movement today and build PHPue Websites Today!*
 
