@@ -6,7 +6,7 @@
 
 [![PHP 7.4+](https://img.shields.io/badge/PHP-7.4+-brightgreen.svg)](https://php.net)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Used by 300+](https://img.shields.io/badge/Users-300+-orange.svg)](https://phpue.co.uk)
+[![Used by 400+](https://img.shields.io/badge/Users-300+-orange.svg)](https://phpue.co.uk)
 [![Live Demo](https://img.shields.io/badge/Live-Demo-success.svg)](https://phpue.co.uk/)
 
 **Official Website:** [PHPue](https://phpue.co.uk) | **Official Documentation:** [PHPue Documentation](https://phpue.co.uk/docs)
