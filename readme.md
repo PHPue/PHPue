@@ -1,12 +1,12 @@
 # ❤️ PHP Power + Vue Syntax = PHPue | <img src="https://phpue.co.uk/assets/img/favicon_io/android-chrome-512x512.png" width="45" height="45" alt="PHPue Logo">
 
-> **Build Vue-like apps in pure PHP • Hot reload included • 500+ developers believe in less complexity and developer joy!**
+> **Build Vue-like apps in pure PHP • Hot reload included • 1000+ developers believe in less complexity and developer joy!**
 
 > *Join the movement today and build PHPue Websites Today!*
 
 [![PHP 7.4+](https://img.shields.io/badge/PHP-7.4+-brightgreen.svg)](https://php.net)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Used by 500+](https://img.shields.io/badge/Users-500+-orange.svg)](https://phpue.co.uk)
+[![Used by 1000+](https://img.shields.io/badge/Users-1000+-orange.svg)](https://phpue.co.uk)
 [![Live Demo](https://img.shields.io/badge/Live-Demo-success.svg)](https://phpue.co.uk/)
 
 **Official Website:** [PHPue](https://phpue.co.uk) | **Official Documentation:** [PHPue Documentation](https://phpue.co.uk/docs)
