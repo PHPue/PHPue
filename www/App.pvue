@@ -1,22 +1,63 @@
 <!-- Author: Edward Patch -->
 <script>
-    @require Navbar 'components/Navbar.pvue';
+    @require Navbar 'components/layout/Navbar.pvue';
+    @require Footer 'components/layout/Footer.pvue';
     #require 'views/index.pvue';
+    #require 'views/whats-new.pvue';
+
+    // backend/lang/autoload.php: picks the language (?lang= > cookie > en) and,
+    // new in 0.0.3, sets <html lang> for this request with phpue_set_lang().
+    Lang::boot();
+
+    // 0.0.3: the App header can print array values ({{ $appMeta['generator'] }})
+    $appMeta = ['generator' => '<meta name="generator" content="PHPue ' . PHPUE_VERSION . '">'];
+
+    $faviconHeader = '<link rel="icon" href="/assets/img/favicon_io/favicon.ico" type="image/x-icon"/>'
+        . '<link rel="apple-touch-icon" href="/assets/img/favicon_io/apple-touch-icon.png">'
+        . '<link rel="manifest" href="/assets/img/favicon_io/site.webmanifest">';
 </script>
 
 <header>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#05080f">
 
-    <link rel="icon" href="assets/img/favicon_io/favicon.ico" type="image/x-icon"/>
+    {{$faviconHeader}}
+    {{ $appMeta['generator'] }}
 
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
-    <script src="assets/js/jquery-3.7.1.min.js"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+            --font-mono: "JetBrains Mono", ui-monospace, monospace;
+            --color-ue-blue: #1e5c9a;
+            --color-ue-navy: #1f3d80;
+            --color-ue-green: #4aa882;
+            --color-ue-lime: #62bb5a;
+            --color-ue-amber: #ecab4c;
+            /* dark theme (matches the 0.0.3 starter): accents tuned for text on ink, ink-* for surfaces */
+            --color-ue-sky: #7cc0ff;
+            --color-ue-mint: #5fd3a5;
+            --color-ink-950: #05080f;
+            --color-ink-900: #0a101d;
+            --color-ink-800: #101828;
+        }
+        :root { color-scheme: dark; }
+        html { scroll-behavior: smooth; }
+        body { @apply bg-ink-950 text-slate-100 font-sans antialiased; }
+        ::selection { @apply bg-ue-sky/30 text-white; }
+    </style>
 </header>
 
 <template>
-    <Navbar></Navbar>
-    <View></View>
+    <div class="flex min-h-screen flex-col">
+        <Navbar/>
+        <div class="flex-1">
+            <View/>
+        </div>
+        <Footer/>
+    </div>
 </template>

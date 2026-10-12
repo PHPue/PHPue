@@ -1,0 +1,10 @@
+<!-- Used as <FruitCard p-for="$fruit in $fruits" />. No props: the component is inlined into the
+     loop, so it reads the parent's $fruit (and $t) like an include would. -->
+<template>
+    <div class="group relative flex flex-col items-center rounded-2xl bg-gradient-to-br p-5 text-center ring-1 transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40 {{ $fruit['tone'] }}">
+        <span p-if="$fruit['bInSeason']" class="absolute right-2 top-2 h-2 w-2 rounded-full bg-ue-mint shadow-[0_0_8px] shadow-ue-mint" title="{{ $t['basket_inSeason'] }}"></span>
+        <span class="text-4xl transition group-hover:scale-110" aria-hidden="true">{{ $fruit['emoji'] }}</span>
+        <span class="mt-3 font-semibold text-white">{{ $fruit['name'] }}</span>
+        <span class="mt-0.5 font-mono text-[11px] text-slate-400">{{ count($fruit['months']) }} / 12</span>
+    </div>
+</template>

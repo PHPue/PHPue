@@ -1,0 +1,7 @@
+<!-- Reads $stat from whoever renders it: a p-for loop variable, or a variable set just before the tag. -->
+<template>
+    <div class="rounded-xl bg-white/5 px-4 py-3 ring-1 ring-white/10">
+        <p class="text-2xl font-bold tabular-nums text-white">{{ $stat['value'] }}</p>
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-400">{{ $stat['label'] }}</p>
+    </div>
+</template>

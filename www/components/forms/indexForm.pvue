@@ -1,84 +1,74 @@
+<!-- Rendered with <UserForm p-if="$bFormOpen" />. $fruits, $submitted and $t are declared in the
+     parent view, so they are already here. BYE BYE properties! -->
 <template>
-    <!-- $bFillFormBtnHidden declared in parent so can be accessible! BYE BYE properties ! -->
-    <div p-if="$bFillFormBtnHidden" class="text-center mb-12">
-        <button onclick="showForm('toggleForm')" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg shadow-md transition-colors mb-8">
-            Hide Form
-        </button>
-
-        <!-- Beautiful Tailwind Form -->
-        <div class="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto border border-gray-100">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">📝 User Information Form</h2>
-            
-            <form class="space-y-6" onsubmit="submitForm(event, 'ajaxFormSubmit')">
-                <!-- Name Field -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium text-gray-700">Full Name</label>
-                    <input type="text" name="name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" placeholder="Enter your full name">
-                </div>
-
-                <!-- Email Field -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium text-gray-700">Email Address</label>
-                    <input type="email" name="email" 
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" 
-                        placeholder="your.email@example.com">
-                </div>
-
-                <!-- Fruit Preference -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium text-gray-700">Favorite Fruit</label>
-                    <select name="favorite_fruit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                        <option value="">Select a fruit</option>
-                        <option p-for="$fruit in $fruits" value="{{$fruit}}">{{$fruit}}</option>
-                    </select>
-                </div>
-
-                <!-- Message -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium text-gray-700">Message</label>
-                    <textarea name="message"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 h-32"
-                        placeholder="Tell us something..."></textarea>
-                </div>
-
-                <!-- Checkbox -->
-                <div class="flex items-center space-x-3">
-                    <input name="newsletter"  type="checkbox" 
-                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                    <label class="text-sm text-gray-700">Subscribe to newsletter</label>
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" 
-                    class="w-full bg-gradient-to-r from-phpue-blue to-blue-600 hover:from-blue-600 hover:to-phpue-blue text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
-                    Submit Form
-                </button>
-            </form>
+    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6 shadow-2xl shadow-black/40 sm:p-8">
+        <div class="flex items-center justify-between gap-4">
+            <h3 class="text-xl font-bold text-white">{{ $t['form_heading'] }}</h3>
+            <button type="button" onclick="toggleForm()" class="rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-semibold text-slate-200 transition hover:border-white/30 hover:bg-white/10">{{ $t['form_close'] }}</button>
         </div>
+
+        <!-- Privacy-first: nothing is sent until the user presses submit -->
+        <form class="mt-6 grid gap-5 sm:grid-cols-2" onsubmit="submitUserForm(event)" novalidate>
+            <label class="block">
+                <span class="text-sm font-medium text-slate-300">{{ $t['form_name'] }}</span>
+                <input type="text" name="name" required maxlength="60" value="{{ $submitted['name'] ?? '' }}" autocomplete="name" placeholder="Ada Lovelace"
+                    class="mt-1.5 w-full rounded-lg border border-white/15 bg-ink-950 px-4 py-2.5 text-white placeholder-slate-500 outline-none transition focus:border-transparent focus:ring-2 focus:ring-ue-sky">
+            </label>
+
+            <label class="block">
+                <span class="text-sm font-medium text-slate-300">{{ $t['form_email'] }}</span>
+                <input type="email" name="email" required maxlength="120" value="{{ $submitted['email'] ?? '' }}" autocomplete="email" placeholder="ada@example.com"
+                    class="mt-1.5 w-full rounded-lg border border-white/15 bg-ink-950 px-4 py-2.5 text-white placeholder-slate-500 outline-none transition focus:border-transparent focus:ring-2 focus:ring-ue-sky">
+            </label>
+
+            <label class="block sm:col-span-2">
+                <span class="text-sm font-medium text-slate-300">{{ $t['form_fruit'] }}</span>
+                <select name="favourite_fruit" class="mt-1.5 w-full rounded-lg border border-white/15 bg-ink-950 px-4 py-2.5 text-white outline-none transition focus:border-transparent focus:ring-2 focus:ring-ue-sky">
+                    <option value="">{{ $t['form_fruitPick'] }}</option>
+                    <option p-for="$fruit in $fruits" value="{{ $fruit['name'] }}" <?= ($submitted['fruit'] ?? '') === $fruit['name'] ? 'selected' : '' ?>>{{ $fruit['emoji'] }} {{ $fruit['name'] }}</option>
+                </select>
+            </label>
+
+            <label class="block sm:col-span-2">
+                <span class="text-sm font-medium text-slate-300">{{ $t['form_message'] }}</span>
+                <textarea name="message" rows="4" maxlength="500" placeholder="{{ $t['form_messageHint'] }}"
+                    class="mt-1.5 w-full rounded-lg border border-white/15 bg-ink-950 px-4 py-2.5 text-white placeholder-slate-500 outline-none transition focus:border-transparent focus:ring-2 focus:ring-ue-sky">{{ $submitted['message'] ?? '' }}</textarea>
+            </label>
+
+            <label class="flex items-center gap-3 sm:col-span-2">
+                <input type="checkbox" name="newsletter" value="1" <?= !empty($submitted['newsletter']) ? 'checked' : '' ?> class="h-4 w-4 rounded border-white/20 accent-ue-sky">
+                <span class="text-sm text-slate-300">{{ $t['form_newsletter'] }}</span>
+            </label>
+
+            <p id="formError" class="hidden rounded-lg border border-rose-400/30 bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-300 sm:col-span-2" role="alert"></p>
+
+            <button type="submit" class="rounded-full bg-ue-sky px-6 py-3 font-semibold text-ink-950 shadow-lg shadow-ue-sky/25 transition hover:-translate-y-0.5 hover:bg-white sm:col-span-2">
+                {{ $t['form_submit'] }}
+            </button>
+        </form>
     </div>
 </template>
 
 <cscript>
-    async function submitForm(event, methodName) {
+    async function submitUserForm(event) {
         event.preventDefault();
-
-        const formData = new FormData(event.target);
+        const errorBox = document.getElementById('formError');
+        const formData = Object.fromEntries(new FormData(event.target));
 
         try {
-            const response = await fetch('', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        action: methodName,
-                        formData: Object.fromEntries(formData)
-                    })
-                });
+            const response = await phpuePost('formSubmit', {formData});
+            const data = await response.json();
 
-            if (response.status === 200) {
-                await showForm('toggleForm');
+            if (data.ok) {
+                window.location.reload();
+                return;
             }
+
+            errorBox.textContent = data.error;
+            errorBox.classList.remove('hidden');
         } catch (error) {
-            console.log("❌ Form submission error:", error);
+            errorBox.textContent = phpueText.error;
+            errorBox.classList.remove('hidden');
         }
     }
 </cscript>

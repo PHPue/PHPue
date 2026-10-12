@@ -1,0 +1,24 @@
+<script>
+    $footerLinks = [
+        ['label' => 'Docs',       'url' => 'https://phpue.co.uk/docs'],
+        ['label' => 'Tutorials',  'url' => 'https://phpue.co.uk/ue-tutorials'],
+        ['label' => 'Releases',   'url' => 'https://phpue.co.uk/ue-releases'],
+        ['label' => 'Extensions', 'url' => 'https://github.com/PHPue/PHPue-Extensions'],
+        ['label' => 'GitHub',     'url' => 'https://github.com/PHPue/PHPue'],
+    ];
+</script>
+
+<template>
+    <footer class="border-t border-white/10 bg-ink-950">
+        <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-slate-400 sm:flex-row sm:px-6">
+            <p>
+                {{ Lang::t('footer_builtWith') }} <span class="font-semibold text-white">PHP<span class="text-ue-lime">ue</span></span>
+                <span class="font-mono text-xs text-slate-400">v<?= PHPUE_VERSION ?></span>
+                <span class="text-slate-500">&middot; {{ Lang::t('footer_author') }}</span>
+            </p>
+            <nav class="flex flex-wrap justify-center gap-x-5 gap-y-2">
+                <a p-for="$footerLink in $footerLinks" href="{{ $footerLink['url'] }}" target="_blank" rel="noopener" class="transition-colors hover:text-white">{{ $footerLink['label'] }}</a>
+            </nav>
+        </div>
+    </footer>
+</template>
