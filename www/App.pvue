@@ -19,7 +19,7 @@
 
 <header>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#1e5c9a">
+    <meta name="theme-color" content="#05080f">
 
     {{$faviconHeader}}
     {{ $appMeta['generator'] }}
@@ -38,9 +38,17 @@
             --color-ue-green: #4aa882;
             --color-ue-lime: #62bb5a;
             --color-ue-amber: #ecab4c;
+            /* dark theme (matches the 0.0.3 starter): accents tuned for text on ink, ink-* for surfaces */
+            --color-ue-sky: #7cc0ff;
+            --color-ue-mint: #5fd3a5;
+            --color-ink-950: #05080f;
+            --color-ink-900: #0a101d;
+            --color-ink-800: #101828;
         }
+        :root { color-scheme: dark; }
         html { scroll-behavior: smooth; }
-        body { @apply bg-white text-slate-900 font-sans antialiased; }
+        body { @apply bg-ink-950 text-slate-100 font-sans antialiased; }
+        ::selection { @apply bg-ue-sky/30 text-white; }
     </style>
 </header>
 

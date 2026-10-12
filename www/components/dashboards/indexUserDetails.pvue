@@ -1,43 +1,43 @@
 <!-- Rendered with <UserDetails p-if="$submitted && !$bFormOpen" />.
      $submitted comes from the parent view (it read $_SESSION['subForm']). PINIA vs. PHP sessions? -->
 <template>
-    <div class="overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 shadow-sm">
-        <div class="flex items-center justify-between gap-4 border-b border-emerald-200/70 px-6 py-4">
+    <div class="overflow-hidden rounded-2xl border border-ue-mint/25 bg-gradient-to-br from-ue-mint/10 to-ink-900 shadow-2xl shadow-black/40">
+        <div class="flex items-center justify-between gap-4 border-b border-ue-mint/20 px-6 py-4">
             <div class="flex items-center gap-3">
-                <span class="grid h-8 w-8 place-items-center rounded-full bg-emerald-500 text-white">
+                <span class="grid h-8 w-8 place-items-center rounded-full bg-ue-mint text-ink-950">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                 </span>
                 <div>
-                    <h3 class="font-semibold text-slate-900">{{ $t['details_title'] }}</h3>
-                    <p class="text-xs text-slate-500">{{ $t['details_note'] }}</p>
+                    <h3 class="font-semibold text-white">{{ $t['details_title'] }}</h3>
+                    <p class="text-xs text-slate-400">{{ $t['details_note'] }}</p>
                 </div>
             </div>
             <div class="flex gap-2">
-                <button type="button" onclick="toggleForm()" class="rounded-full border border-emerald-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-emerald-800 transition hover:border-emerald-400">{{ $t['details_edit'] }}</button>
-                <button type="button" onclick="clearDetails()" class="rounded-full px-3.5 py-1.5 text-xs font-semibold text-slate-500 transition hover:text-slate-900">{{ $t['details_clear'] }}</button>
+                <button type="button" onclick="toggleForm()" class="rounded-full border border-ue-mint/40 bg-ue-mint/10 px-3.5 py-1.5 text-xs font-semibold text-ue-mint transition hover:border-ue-mint/70">{{ $t['details_edit'] }}</button>
+                <button type="button" onclick="clearDetails()" class="rounded-full px-3.5 py-1.5 text-xs font-semibold text-slate-400 transition hover:text-white">{{ $t['details_clear'] }}</button>
             </div>
         </div>
 
-        <dl class="grid gap-px bg-emerald-200/60 sm:grid-cols-2">
-            <div class="bg-white px-6 py-4">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ $t['form_name'] }}</dt>
-                <dd class="mt-1 font-semibold text-slate-900">{{ $submitted['name'] }}</dd>
+        <dl class="grid gap-px bg-white/5 sm:grid-cols-2">
+            <div class="bg-ink-900 px-6 py-4">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ $t['form_name'] }}</dt>
+                <dd class="mt-1 font-semibold text-white">{{ $submitted['name'] }}</dd>
             </div>
-            <div class="bg-white px-6 py-4">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ $t['form_email'] }}</dt>
-                <dd class="mt-1 font-semibold text-ue-blue">{{ $submitted['email'] }}</dd>
+            <div class="bg-ink-900 px-6 py-4">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ $t['form_email'] }}</dt>
+                <dd class="mt-1 font-semibold text-ue-sky">{{ $submitted['email'] }}</dd>
             </div>
-            <div class="bg-white px-6 py-4">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ $t['form_fruit'] }}</dt>
-                <dd class="mt-1 font-semibold text-slate-900">{{ $submitted['fruit'] ?: $t['details_none'] }}</dd>
+            <div class="bg-ink-900 px-6 py-4">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ $t['form_fruit'] }}</dt>
+                <dd class="mt-1 font-semibold text-white">{{ $submitted['fruit'] ?: $t['details_none'] }}</dd>
             </div>
-            <div class="bg-white px-6 py-4">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ $t['form_newsletter'] }}</dt>
-                <dd class="mt-1 font-semibold text-slate-900">{{ $submitted['newsletter'] ? $t['details_yes'] : $t['details_no'] }}</dd>
+            <div class="bg-ink-900 px-6 py-4">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ $t['form_newsletter'] }}</dt>
+                <dd class="mt-1 font-semibold text-white">{{ $submitted['newsletter'] ? $t['details_yes'] : $t['details_no'] }}</dd>
             </div>
-            <div class="bg-white px-6 py-4 sm:col-span-2">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ $t['form_message'] }}</dt>
-                <dd class="mt-1 whitespace-pre-line leading-relaxed text-slate-700">{{ $submitted['message'] ?: $t['details_none'] }}</dd>
+            <div class="bg-ink-900 px-6 py-4 sm:col-span-2">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ $t['form_message'] }}</dt>
+                <dd class="mt-1 whitespace-pre-line leading-relaxed text-slate-200">{{ $submitted['message'] ?: $t['details_none'] }}</dd>
             </div>
         </dl>
     </div>

@@ -1,48 +1,48 @@
 <!-- Rendered with <UserForm p-if="$bFormOpen" />. $fruits, $submitted and $t are declared in the
      parent view, so they are already here. BYE BYE properties! -->
 <template>
-    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/60 sm:p-8">
+    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6 shadow-2xl shadow-black/40 sm:p-8">
         <div class="flex items-center justify-between gap-4">
-            <h3 class="text-xl font-bold text-slate-900">{{ $t['form_heading'] }}</h3>
-            <button type="button" onclick="toggleForm()" class="rounded-full border border-slate-300 px-4 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-slate-400">{{ $t['form_close'] }}</button>
+            <h3 class="text-xl font-bold text-white">{{ $t['form_heading'] }}</h3>
+            <button type="button" onclick="toggleForm()" class="rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-semibold text-slate-200 transition hover:border-white/30 hover:bg-white/10">{{ $t['form_close'] }}</button>
         </div>
 
         <!-- Privacy-first: nothing is sent until the user presses submit -->
         <form class="mt-6 grid gap-5 sm:grid-cols-2" onsubmit="submitUserForm(event)" novalidate>
             <label class="block">
-                <span class="text-sm font-medium text-slate-700">{{ $t['form_name'] }}</span>
+                <span class="text-sm font-medium text-slate-300">{{ $t['form_name'] }}</span>
                 <input type="text" name="name" required maxlength="60" value="{{ $submitted['name'] ?? '' }}" autocomplete="name" placeholder="Ada Lovelace"
-                    class="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-2.5 outline-none transition focus:border-transparent focus:ring-2 focus:ring-ue-blue">
+                    class="mt-1.5 w-full rounded-lg border border-white/15 bg-ink-950 px-4 py-2.5 text-white placeholder-slate-500 outline-none transition focus:border-transparent focus:ring-2 focus:ring-ue-sky">
             </label>
 
             <label class="block">
-                <span class="text-sm font-medium text-slate-700">{{ $t['form_email'] }}</span>
+                <span class="text-sm font-medium text-slate-300">{{ $t['form_email'] }}</span>
                 <input type="email" name="email" required maxlength="120" value="{{ $submitted['email'] ?? '' }}" autocomplete="email" placeholder="ada@example.com"
-                    class="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-2.5 outline-none transition focus:border-transparent focus:ring-2 focus:ring-ue-blue">
+                    class="mt-1.5 w-full rounded-lg border border-white/15 bg-ink-950 px-4 py-2.5 text-white placeholder-slate-500 outline-none transition focus:border-transparent focus:ring-2 focus:ring-ue-sky">
             </label>
 
             <label class="block sm:col-span-2">
-                <span class="text-sm font-medium text-slate-700">{{ $t['form_fruit'] }}</span>
-                <select name="favourite_fruit" class="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 outline-none transition focus:border-transparent focus:ring-2 focus:ring-ue-blue">
+                <span class="text-sm font-medium text-slate-300">{{ $t['form_fruit'] }}</span>
+                <select name="favourite_fruit" class="mt-1.5 w-full rounded-lg border border-white/15 bg-ink-950 px-4 py-2.5 text-white outline-none transition focus:border-transparent focus:ring-2 focus:ring-ue-sky">
                     <option value="">{{ $t['form_fruitPick'] }}</option>
                     <option p-for="$fruit in $fruits" value="{{ $fruit['name'] }}" <?= ($submitted['fruit'] ?? '') === $fruit['name'] ? 'selected' : '' ?>>{{ $fruit['emoji'] }} {{ $fruit['name'] }}</option>
                 </select>
             </label>
 
             <label class="block sm:col-span-2">
-                <span class="text-sm font-medium text-slate-700">{{ $t['form_message'] }}</span>
+                <span class="text-sm font-medium text-slate-300">{{ $t['form_message'] }}</span>
                 <textarea name="message" rows="4" maxlength="500" placeholder="{{ $t['form_messageHint'] }}"
-                    class="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-2.5 outline-none transition focus:border-transparent focus:ring-2 focus:ring-ue-blue">{{ $submitted['message'] ?? '' }}</textarea>
+                    class="mt-1.5 w-full rounded-lg border border-white/15 bg-ink-950 px-4 py-2.5 text-white placeholder-slate-500 outline-none transition focus:border-transparent focus:ring-2 focus:ring-ue-sky">{{ $submitted['message'] ?? '' }}</textarea>
             </label>
 
             <label class="flex items-center gap-3 sm:col-span-2">
-                <input type="checkbox" name="newsletter" value="1" <?= !empty($submitted['newsletter']) ? 'checked' : '' ?> class="h-4 w-4 rounded border-slate-300 accent-ue-blue">
-                <span class="text-sm text-slate-700">{{ $t['form_newsletter'] }}</span>
+                <input type="checkbox" name="newsletter" value="1" <?= !empty($submitted['newsletter']) ? 'checked' : '' ?> class="h-4 w-4 rounded border-white/20 accent-ue-sky">
+                <span class="text-sm text-slate-300">{{ $t['form_newsletter'] }}</span>
             </label>
 
-            <p id="formError" class="hidden rounded-lg bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700 sm:col-span-2" role="alert"></p>
+            <p id="formError" class="hidden rounded-lg border border-rose-400/30 bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-300 sm:col-span-2" role="alert"></p>
 
-            <button type="submit" class="rounded-full bg-gradient-to-r from-ue-blue to-ue-navy px-6 py-3 font-semibold text-white shadow-lg shadow-ue-blue/30 transition hover:-translate-y-0.5 sm:col-span-2">
+            <button type="submit" class="rounded-full bg-ue-sky px-6 py-3 font-semibold text-ink-950 shadow-lg shadow-ue-sky/25 transition hover:-translate-y-0.5 hover:bg-white sm:col-span-2">
                 {{ $t['form_submit'] }}
             </button>
         </form>

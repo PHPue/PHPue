@@ -5,20 +5,26 @@
     @require StatPill 'components/cards/StatPill.pvue';
 
     $t = Lang::pack();
-    $features = Showcase::features();
+    $features = Showcase::features();     // titles, notes and snippets in the current language
     $alsoFixed = Showcase::alsoFixed();
 
-    // Data for the live demos
+    // Data for the live demos (labels come from the language pack too)
     $bOnline = true;
     $nums    = range(1, 10);
-    $groups  = ['Fruit' => ['Apple', 'Pear'], 'Veg' => ['Leek', 'Carrot']];
-    $stats   = [
-        ['label' => 'Developers', 'value' => '1200+'],
-        ['label' => 'Bundlers',   'value' => '0'],
-        ['label' => 'Files',      'value' => '2'],
+    $groups  = [
+        $t['demo_groupFruit'] => [$t['fruit_apple'], $t['fruit_pear']],
+        $t['demo_groupVeg']   => [$t['demo_leek'], $t['demo_carrot']],
     ];
-    $total   = ['label' => 'Release', 'value' => PHPUE_VERSION];
-    $nested  = ['stats' => ['views' => 1200, 'label' => 'developers', 'tags' => ['ssr', 'php']]];
+    $stats   = [
+        ['label' => $t['demo_developers'], 'value' => '2500+'],
+        ['label' => $t['demo_bundlers'],   'value' => '0'],
+        ['label' => $t['demo_files'],      'value' => '2'],
+    ];
+    $total   = ['label' => $t['demo_release'], 'value' => PHPUE_VERSION];
+    $nested  = ['stats' => ['developers' => 2500, 'label' => $t['demo_developers'], 'tags' => ['ssr', 'php']]];
+
+    // Strings the browser needs, handed over through {{ }} in <cscript>
+    $jsText = ['ranBad' => $t['demo_ranBad'], 'notCallable' => $t['demo_notCallable']];
 
     // 0.0.3: the method is enforced (a GET gets 405) and only @AJAX functions are callable
     @AJAX("POST")
@@ -41,138 +47,144 @@
 <template>
     <main>
         <!-- ============ Intro ============ -->
-        <section class="relative overflow-hidden border-b border-slate-200">
-            <div class="pointer-events-none absolute -top-32 right-0 -z-10 h-80 w-[40rem] rounded-full bg-gradient-to-r from-ue-amber/25 to-ue-green/20 blur-3xl"></div>
+        <section class="relative overflow-hidden">
+            <div class="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgb(255_255_255/0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgb(255_255_255/0.06)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:radial-gradient(ellipse_at_top,black_25%,transparent_70%)]"></div>
+            <div class="pointer-events-none absolute -top-40 right-0 -z-10 h-96 w-[44rem] rounded-full bg-gradient-to-r from-ue-amber/20 via-ue-green/15 to-ue-blue/30 blur-3xl"></div>
             <div class="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:py-20">
-                <p class="text-sm font-semibold uppercase tracking-widest text-amber-700">PHPue <?= PHPUE_VERSION ?></p>
-                <h1 class="mt-2 text-4xl font-extrabold tracking-tight sm:text-5xl">{{ $t['new_title'] }}</h1>
-                <p class="mt-4 max-w-2xl text-lg text-slate-600">{{ $t['new_intro'] }}</p>
+                <p class="font-mono text-sm font-semibold uppercase tracking-widest text-ue-amber">PHPue <?= PHPUE_VERSION ?></p>
+                <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">{{ $t['new_title'] }}</h1>
+                <p class="mt-4 max-w-2xl text-lg leading-relaxed text-slate-300">{{ $t['new_intro'] }}</p>
                 <div class="mt-6 flex flex-wrap gap-2 text-sm">
-                    <a p-for="$id => $feature in $features" href="#demo-{{ $id }}" class="rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-600 transition hover:border-slate-300 hover:text-slate-900">{{ $feature['title'] }}</a>
+                    <a p-for="$id => $feature in $features" href="#demo-{{ $id }}" class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-300 transition hover:border-white/25 hover:text-white">{{ $feature['title'] }}</a>
                 </div>
             </div>
         </section>
 
         <!-- ============ Live demos ============ -->
-        <section class="bg-slate-50/70">
+        <section class="border-t border-white/5 bg-ink-900/60">
             <div class="mx-auto grid max-w-6xl gap-5 px-4 py-14 sm:px-6 lg:grid-cols-2">
 
-                <article id="demo-pif" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <article id="demo-pif" class="min-w-0 scroll-mt-20 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                     <?php $demo = 'pif'; ?><DemoHeader/>
-                    <div class="mt-1.5 flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-slate-300 p-4">
-                        <span p-if="$bOnline" class="font-semibold text-emerald-600">● Online</span><span p-if="!$bOnline">○ Offline</span>
-                        <input p-if="$bOnline" value="void elements too" readonly class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600">
+                    <div class="mt-1.5 flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-white/15 p-4">
+                        <span p-if="$bOnline" class="font-semibold text-ue-mint">{{ $t['demo_online'] }}</span><span p-if="!$bOnline" class="text-slate-400">{{ $t['demo_offline'] }}</span>
+                        <input p-if="$bOnline" value="{{ $t['demo_void'] }}" readonly class="rounded-lg border border-white/10 bg-ink-950 px-3 py-1.5 text-sm text-slate-300">
                     </div>
                 </article>
 
-                <article id="demo-pfor" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <article id="demo-pfor" class="min-w-0 scroll-mt-20 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                     <?php $demo = 'pfor'; ?><DemoHeader/>
-                    <div class="mt-1.5 flex flex-wrap items-center gap-4 rounded-xl border border-dashed border-slate-300 p-4">
+                    <div class="mt-1.5 flex flex-wrap items-center gap-4 rounded-xl border border-dashed border-white/15 p-4">
                         <ul class="flex gap-1.5">
-                            <li p-for="$n in range(1, 5)" class="grid h-8 w-8 place-items-center rounded-lg bg-ue-blue/10 font-mono text-sm font-semibold text-ue-blue">{{ $n }}</li>
+                            <li p-for="$n in range(1, 5)" class="grid h-8 w-8 place-items-center rounded-lg bg-ue-sky/10 font-mono text-sm font-semibold text-ue-sky">{{ $n }}</li>
                         </ul>
                         <?php $countdown = (function () { yield 3; yield 2; yield 1; })(); ?>
                         <ul class="flex gap-1.5">
-                            <li p-for="$n in $countdown" class="rounded-lg bg-ue-amber/15 px-2.5 py-1 font-mono text-sm font-semibold text-amber-700">{{ $n }}…</li>
+                            <li p-for="$n in $countdown" class="rounded-lg bg-ue-amber/15 px-2.5 py-1 font-mono text-sm font-semibold text-amber-300">{{ $n }}…</li>
                         </ul>
                     </div>
                 </article>
 
-                <article id="demo-pforif" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <article id="demo-pforif" class="min-w-0 scroll-mt-20 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                     <?php $demo = 'pforif'; ?><DemoHeader/>
-                    <ul class="mt-1.5 flex flex-wrap gap-1.5 rounded-xl border border-dashed border-slate-300 p-4">
-                        <li p-for="$n in $nums" p-if="$n % 2 === 0" class="grid h-8 w-8 place-items-center rounded-lg bg-emerald-100 font-mono text-sm font-semibold text-emerald-800">{{ $n }}</li>
+                    <ul class="mt-1.5 flex flex-wrap gap-1.5 rounded-xl border border-dashed border-white/15 p-4">
+                        <li p-for="$n in $nums" p-if="$n % 2 === 0" class="grid h-8 w-8 place-items-center rounded-lg bg-ue-mint/15 font-mono text-sm font-semibold text-ue-mint">{{ $n }}</li>
                     </ul>
                 </article>
 
-                <article id="demo-nested" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <article id="demo-nested" class="min-w-0 scroll-mt-20 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                     <?php $demo = 'nested'; ?><DemoHeader/>
-                    <ul class="mt-1.5 grid grid-cols-2 gap-3 rounded-xl border border-dashed border-slate-300 p-4">
-                        <li p-for="$group => $items in $groups" class="rounded-lg bg-slate-50 p-3">
-                            <strong class="text-sm text-slate-900">{{ $group }}</strong>
-                            <ul class="mt-1.5 space-y-1 text-sm text-slate-600">
+                    <ul class="mt-1.5 grid grid-cols-2 gap-3 rounded-xl border border-dashed border-white/15 p-4">
+                        <li p-for="$group => $items in $groups" class="rounded-lg bg-white/5 p-3">
+                            <strong class="text-sm text-white">{{ $group }}</strong>
+                            <ul class="mt-1.5 space-y-1 text-sm text-slate-300">
                                 <li p-for="$item in $items">&middot; {{ $item }}</li>
                             </ul>
                         </li>
                     </ul>
                 </article>
 
-                <article id="demo-component" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <article id="demo-component" class="min-w-0 scroll-mt-20 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                     <?php $demo = 'component'; ?><DemoHeader/>
-                    <div class="mt-1.5 grid grid-cols-2 gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 sm:grid-cols-4">
+                    <div class="mt-1.5 grid grid-cols-2 gap-2 rounded-xl border border-dashed border-white/15 p-4 sm:grid-cols-4">
                         <StatPill p-for="$stat in $stats" />
                         <?php $stat = $total; ?><StatPill p-if="$bOnline" />
                     </div>
                 </article>
 
-                <article id="demo-mustache" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <article id="demo-mustache" class="min-w-0 scroll-mt-20 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                     <?php $demo = 'mustache'; ?><DemoHeader/>
-                    <dl class="mt-1.5 grid grid-cols-2 gap-x-4 gap-y-1.5 rounded-xl border border-dashed border-slate-300 p-4 font-mono text-sm sm:grid-cols-4">
-                        <dt class="text-slate-400">count</dt><dd class="font-semibold">{{ count($groups) }}</dd>
-                        <dt class="text-slate-400">number_format</dt><dd class="font-semibold">{{ number_format(1234567) }}</dd>
-                        <dt class="text-slate-400">Lang::code</dt><dd class="font-semibold">{{ strtoupper(Lang::code()) }}</dd>
-                        <dt class="text-slate-400">ternary</dt><dd class="font-semibold">{{ $bOnline ? 'yes' : 'no' }}</dd>
+                    <dl class="mt-1.5 grid grid-cols-2 gap-x-4 gap-y-1.5 rounded-xl border border-dashed border-white/15 p-4 font-mono text-sm sm:grid-cols-4">
+                        <dt class="text-slate-500">count</dt><dd class="font-semibold text-white">{{ count($groups) }}</dd>
+                        <dt class="text-slate-500">number_format</dt><dd class="font-semibold text-white">{{ number_format(1234567) }}</dd>
+                        <dt class="text-slate-500">Lang::code</dt><dd class="font-semibold text-white">{{ strtoupper(Lang::code()) }}</dd>
+                        <dt class="text-slate-500">ternary</dt><dd class="font-semibold text-white">{{ $bOnline ? $t['demo_yes'] : $t['demo_no'] }}</dd>
                     </dl>
                 </article>
 
-                <article id="demo-template" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <article id="demo-template" class="min-w-0 scroll-mt-20 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                     <?php $demo = 'template'; ?><DemoHeader/>
-                    <div class="mt-1.5 rounded-xl border border-dashed border-slate-300 p-4">
+                    <div class="mt-1.5 rounded-xl border border-dashed border-white/15 p-4">
                         <template id="toast-tpl">
-                            <div class="rounded-lg bg-slate-900 px-3 py-2 text-sm text-white shadow">Cloned from a nested template</div>
+                            <div class="rounded-lg border border-ue-mint/30 bg-ue-mint/10 px-3 py-2 text-sm text-ue-mint">{{ $t['demo_toast'] }}</div>
                         </template>
-                        <button type="button" onclick="cloneToast()" class="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 active:scale-95">{{ $t['new_clone'] }}</button>
+                        <button type="button" onclick="cloneToast()" class="rounded-full bg-ue-sky px-4 py-2 text-sm font-semibold text-ink-950 transition hover:bg-white active:scale-95">{{ $t['new_clone'] }}</button>
                         <div id="toast-target" class="mt-3 space-y-2"></div>
                     </div>
                 </article>
 
-                <article id="demo-ajax" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <article id="demo-ajax" class="min-w-0 scroll-mt-20 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                     <?php $demo = 'ajax'; ?><DemoHeader/>
-                    <div class="mt-1.5 rounded-xl border border-dashed border-slate-300 p-4">
+                    <div class="mt-1.5 rounded-xl border border-dashed border-white/15 p-4">
                         <div class="flex flex-wrap gap-2">
-                            <button type="button" onclick="pingAjax('POST')" class="rounded-full bg-ue-blue px-4 py-2 text-sm font-semibold text-white transition hover:bg-ue-navy active:scale-95">POST whatsNewPing</button>
-                            <button type="button" onclick="pingAjax('GET')" class="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 active:scale-95">GET whatsNewPing</button>
-                            <button type="button" onclick="pingAjax('HIDDEN')" class="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 active:scale-95">?action=whatsNewHidden</button>
+                            <button type="button" onclick="pingAjax('POST')" class="rounded-full bg-ue-sky px-4 py-2 font-mono text-xs font-semibold text-ink-950 transition hover:bg-white active:scale-95">POST whatsNewPing</button>
+                            <button type="button" onclick="pingAjax('GET')" class="rounded-full border border-white/15 bg-white/5 px-4 py-2 font-mono text-xs font-semibold text-white transition hover:border-white/30 hover:bg-white/10 active:scale-95">GET whatsNewPing</button>
+                            <button type="button" onclick="pingAjax('HIDDEN')" class="rounded-full border border-white/15 bg-white/5 px-4 py-2 font-mono text-xs font-semibold text-white transition hover:border-white/30 hover:bg-white/10 active:scale-95">?action=whatsNewHidden</button>
                         </div>
-                        <p id="ajax-result" class="mt-3 font-mono text-sm text-slate-500">{{ $t['new_pickRequest'] }}</p>
+                        <p id="ajax-result" class="mt-3 font-mono text-sm text-slate-400">{{ $t['new_pickRequest'] }}</p>
                     </div>
                 </article>
 
-                <article id="demo-cscript" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <article id="demo-cscript" class="min-w-0 scroll-mt-20 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                     <?php $demo = 'cscript'; ?><DemoHeader/>
-                    <pre id="cscript-result" class="mt-1.5 overflow-x-auto rounded-xl border border-dashed border-slate-300 p-4 font-mono text-[12.5px] text-slate-700"></pre>
+                    <pre id="cscript-result" class="mt-1.5 overflow-x-auto rounded-xl border border-dashed border-white/15 p-4 font-mono text-[12.5px] text-ue-mint"></pre>
                 </article>
 
-                <article id="demo-lang" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <article id="demo-lang" class="min-w-0 scroll-mt-20 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                     <?php $demo = 'lang'; ?><DemoHeader/>
-                    <div class="mt-1.5 flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-slate-300 p-4 text-sm">
-                        <span class="font-mono text-slate-500">&lt;html lang="<strong id="html-lang" class="text-slate-900"></strong>"&gt;</span>
-                        <a href="?lang=en#demo-lang" class="rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-700 hover:bg-slate-200">English</a>
-                        <a href="?lang=cy#demo-lang" class="rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-700 hover:bg-slate-200">Cymraeg</a>
+                    <div class="mt-1.5 flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-white/15 p-4 text-sm">
+                        <span class="font-mono text-slate-400">&lt;html lang="<strong id="html-lang" class="text-ue-sky"></strong>"&gt;</span>
+                        <a href="?lang=en#demo-lang" class="rounded-full bg-white/5 px-3 py-1 font-medium text-slate-200 ring-1 ring-white/10 hover:bg-white/10 hover:text-white">English</a>
+                        <a href="?lang=cy#demo-lang" class="rounded-full bg-white/5 px-3 py-1 font-medium text-slate-200 ring-1 ring-white/10 hover:bg-white/10 hover:text-white">Cymraeg</a>
                     </div>
                 </article>
             </div>
         </section>
 
         <!-- ============ Also fixed ============ -->
-        <section class="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-            <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ $t['new_alsoFixed'] }}</h2>
-            <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div p-for="$fix in $alsoFixed" class="rounded-2xl border border-slate-200 p-5">
-                    <h3 class="font-semibold text-slate-900">{{ $fix['title'] }}</h3>
-                    <p class="mt-1.5 text-sm leading-relaxed text-slate-600">{{ $fix['text'] }}</p>
+        <section class="border-t border-white/5">
+            <div class="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+                <h2 class="text-2xl font-bold tracking-tight text-white sm:text-3xl">{{ $t['new_alsoFixed'] }}</h2>
+                <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div p-for="$fix in $alsoFixed" class="rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:border-white/25 hover:bg-white/10">
+                        <h3 class="font-semibold text-white">{{ $fix['title'] }}</h3>
+                        <p class="mt-1.5 text-sm leading-relaxed text-slate-400">{{ $fix['text'] }}</p>
+                    </div>
                 </div>
-            </div>
 
-            <div class="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-slate-900 px-6 py-5 text-white">
-                <p class="font-medium">{{ $t['new_upgrade'] }}</p>
-                <a href="https://phpue.co.uk/ue-releases" target="_blank" rel="noopener" class="rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">{{ $t['new_releaseNotes'] }}</a>
+                <div class="relative mt-10 flex flex-wrap items-center justify-between gap-4 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-ink-800 to-ink-950 px-6 py-5">
+                    <div class="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-ue-green/20 blur-3xl"></div>
+                    <p class="relative font-medium text-slate-200">{{ $t['new_upgrade'] }}</p>
+                    <a href="https://phpue.co.uk/ue-releases" target="_blank" rel="noopener" class="relative rounded-full bg-ue-sky px-5 py-2 text-sm font-semibold text-ink-950 shadow-lg shadow-ue-sky/25 transition hover:bg-white">{{ $t['new_releaseNotes'] }}</a>
+                </div>
             </div>
         </section>
     </main>
 </template>
 
 <cscript>
+    const whatsNewText = {{ $jsText }};
+
     // Nested <template>: clone its content on demand
     function cloneToast() {
         const tpl = document.getElementById('toast-tpl');
@@ -198,12 +210,12 @@
 
         const body = await response.text();
         const verdict = kind === 'HIDDEN'
-            ? (body.trim().startsWith('HIDDEN-' + 'FUNCTION-RAN') ? 'function ran (bad!)' : 'not callable, normal page returned')
+            ? (body.trim().startsWith('HIDDEN-' + 'FUNCTION-RAN') ? whatsNewText.ranBad : whatsNewText.notCallable)
             : body.slice(0, 80);
 
         target.innerHTML = '';
         const status = document.createElement('strong');
-        status.className = response.ok ? 'text-emerald-600' : 'text-rose-600';
+        status.className = response.ok ? 'text-ue-mint' : 'text-rose-400';
         status.textContent = response.status + ' ';
         target.append(status, verdict);
     }
