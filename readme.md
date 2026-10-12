@@ -11,7 +11,7 @@ No bundler. No `node_modules`. Just PHP.
 
 [![PHP 7.4+](https://img.shields.io/badge/PHP-7.4+-777bb4.svg)](https://php.net)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Used by 1200+](https://img.shields.io/badge/Users-1200+-orange.svg)](https://phpue.co.uk)
+[![Used by 1500+](https://img.shields.io/badge/Users-2500+-orange.svg)](https://phpue.co.uk)
 [![Live Demo](https://img.shields.io/badge/Live-Demo-success.svg)](https://phpue.co.uk/)
 
 [Website](https://phpue.co.uk) · [Docs](https://phpue.co.uk/docs) · [Tutorials](https://phpue.co.uk/ue-tutorials) · [Releases](https://phpue.co.uk/ue-releases) · [Insights](https://phpue.co.uk/ue-insights) · [Deployment](https://phpue.co.uk/deployment)
@@ -145,6 +145,6 @@ If PHPue makes your day better, you can support it on [GitHub Sponsors](https://
 
 <div align="center">
 
-**Built with ❤️ by [Edward Patch](https://github.com/ShinkuKira21) and 1200+ developers who believe in less complexity.**
+**Built with ❤️ by [Edward Patch](https://github.com/ShinkuKira21) and 2500+ developers who believe in less complexity.**
 
 </div>
