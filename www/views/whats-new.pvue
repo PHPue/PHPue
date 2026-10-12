@@ -1,0 +1,219 @@
+<!-- Author: Edward Patch -->
+<!-- What's new in 0.0.3: each card shows the source and renders it live, right below. -->
+<script>
+    @require DemoHeader 'components/cards/DemoHeader.pvue';
+    @require StatPill 'components/cards/StatPill.pvue';
+
+    $t = Lang::pack();
+    $features = Showcase::features();
+    $alsoFixed = Showcase::alsoFixed();
+
+    // Data for the live demos
+    $bOnline = true;
+    $nums    = range(1, 10);
+    $groups  = ['Fruit' => ['Apple', 'Pear'], 'Veg' => ['Leek', 'Carrot']];
+    $stats   = [
+        ['label' => 'Developers', 'value' => '1200+'],
+        ['label' => 'Bundlers',   'value' => '0'],
+        ['label' => 'Files',      'value' => '2'],
+    ];
+    $total   = ['label' => 'Release', 'value' => PHPUE_VERSION];
+    $nested  = ['stats' => ['views' => 1200, 'label' => 'developers', 'tags' => ['ssr', 'php']]];
+
+    // 0.0.3: the method is enforced (a GET gets 405) and only @AJAX functions are callable
+    @AJAX("POST")
+    function whatsNewPing(array $input = []): void {
+        header('Content-Type: application/json');
+        echo json_encode(['pong' => true, 'method' => $_SERVER['REQUEST_METHOD']]);
+    }
+
+    // Not decorated, so ?action=whatsNewHidden falls through to the normal page
+    function whatsNewHidden() {
+        echo 'HIDDEN-FUNCTION-RAN';
+    }
+</script>
+
+<header>
+    <title>What's new in 0.0.3 | PHPue Example</title>
+    <meta name="description" content="PHPue 0.0.3, demonstrated live: p-if anywhere, p-for over any iterable, component loops, enforced @AJAX methods and per-request html lang.">
+</header>
+
+<template>
+    <main>
+        <!-- ============ Intro ============ -->
+        <section class="relative overflow-hidden border-b border-slate-200">
+            <div class="pointer-events-none absolute -top-32 right-0 -z-10 h-80 w-[40rem] rounded-full bg-gradient-to-r from-ue-amber/25 to-ue-green/20 blur-3xl"></div>
+            <div class="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:py-20">
+                <p class="text-sm font-semibold uppercase tracking-widest text-amber-700">PHPue <?= PHPUE_VERSION ?></p>
+                <h1 class="mt-2 text-4xl font-extrabold tracking-tight sm:text-5xl">{{ $t['new_title'] }}</h1>
+                <p class="mt-4 max-w-2xl text-lg text-slate-600">{{ $t['new_intro'] }}</p>
+                <div class="mt-6 flex flex-wrap gap-2 text-sm">
+                    <a p-for="$id => $feature in $features" href="#demo-{{ $id }}" class="rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-600 transition hover:border-slate-300 hover:text-slate-900">{{ $feature['title'] }}</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ Live demos ============ -->
+        <section class="bg-slate-50/70">
+            <div class="mx-auto grid max-w-6xl gap-5 px-4 py-14 sm:px-6 lg:grid-cols-2">
+
+                <article id="demo-pif" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <?php $demo = 'pif'; ?><DemoHeader/>
+                    <div class="mt-1.5 flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-slate-300 p-4">
+                        <span p-if="$bOnline" class="font-semibold text-emerald-600">● Online</span><span p-if="!$bOnline">○ Offline</span>
+                        <input p-if="$bOnline" value="void elements too" readonly class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600">
+                    </div>
+                </article>
+
+                <article id="demo-pfor" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <?php $demo = 'pfor'; ?><DemoHeader/>
+                    <div class="mt-1.5 flex flex-wrap items-center gap-4 rounded-xl border border-dashed border-slate-300 p-4">
+                        <ul class="flex gap-1.5">
+                            <li p-for="$n in range(1, 5)" class="grid h-8 w-8 place-items-center rounded-lg bg-ue-blue/10 font-mono text-sm font-semibold text-ue-blue">{{ $n }}</li>
+                        </ul>
+                        <?php $countdown = (function () { yield 3; yield 2; yield 1; })(); ?>
+                        <ul class="flex gap-1.5">
+                            <li p-for="$n in $countdown" class="rounded-lg bg-ue-amber/15 px-2.5 py-1 font-mono text-sm font-semibold text-amber-700">{{ $n }}…</li>
+                        </ul>
+                    </div>
+                </article>
+
+                <article id="demo-pforif" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <?php $demo = 'pforif'; ?><DemoHeader/>
+                    <ul class="mt-1.5 flex flex-wrap gap-1.5 rounded-xl border border-dashed border-slate-300 p-4">
+                        <li p-for="$n in $nums" p-if="$n % 2 === 0" class="grid h-8 w-8 place-items-center rounded-lg bg-emerald-100 font-mono text-sm font-semibold text-emerald-800">{{ $n }}</li>
+                    </ul>
+                </article>
+
+                <article id="demo-nested" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <?php $demo = 'nested'; ?><DemoHeader/>
+                    <ul class="mt-1.5 grid grid-cols-2 gap-3 rounded-xl border border-dashed border-slate-300 p-4">
+                        <li p-for="$group => $items in $groups" class="rounded-lg bg-slate-50 p-3">
+                            <strong class="text-sm text-slate-900">{{ $group }}</strong>
+                            <ul class="mt-1.5 space-y-1 text-sm text-slate-600">
+                                <li p-for="$item in $items">&middot; {{ $item }}</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </article>
+
+                <article id="demo-component" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <?php $demo = 'component'; ?><DemoHeader/>
+                    <div class="mt-1.5 grid grid-cols-2 gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 sm:grid-cols-4">
+                        <StatPill p-for="$stat in $stats" />
+                        <?php $stat = $total; ?><StatPill p-if="$bOnline" />
+                    </div>
+                </article>
+
+                <article id="demo-mustache" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <?php $demo = 'mustache'; ?><DemoHeader/>
+                    <dl class="mt-1.5 grid grid-cols-2 gap-x-4 gap-y-1.5 rounded-xl border border-dashed border-slate-300 p-4 font-mono text-sm sm:grid-cols-4">
+                        <dt class="text-slate-400">count</dt><dd class="font-semibold">{{ count($groups) }}</dd>
+                        <dt class="text-slate-400">number_format</dt><dd class="font-semibold">{{ number_format(1234567) }}</dd>
+                        <dt class="text-slate-400">Lang::code</dt><dd class="font-semibold">{{ strtoupper(Lang::code()) }}</dd>
+                        <dt class="text-slate-400">ternary</dt><dd class="font-semibold">{{ $bOnline ? 'yes' : 'no' }}</dd>
+                    </dl>
+                </article>
+
+                <article id="demo-template" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <?php $demo = 'template'; ?><DemoHeader/>
+                    <div class="mt-1.5 rounded-xl border border-dashed border-slate-300 p-4">
+                        <template id="toast-tpl">
+                            <div class="rounded-lg bg-slate-900 px-3 py-2 text-sm text-white shadow">Cloned from a nested template</div>
+                        </template>
+                        <button type="button" onclick="cloneToast()" class="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 active:scale-95">{{ $t['new_clone'] }}</button>
+                        <div id="toast-target" class="mt-3 space-y-2"></div>
+                    </div>
+                </article>
+
+                <article id="demo-ajax" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <?php $demo = 'ajax'; ?><DemoHeader/>
+                    <div class="mt-1.5 rounded-xl border border-dashed border-slate-300 p-4">
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="pingAjax('POST')" class="rounded-full bg-ue-blue px-4 py-2 text-sm font-semibold text-white transition hover:bg-ue-navy active:scale-95">POST whatsNewPing</button>
+                            <button type="button" onclick="pingAjax('GET')" class="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 active:scale-95">GET whatsNewPing</button>
+                            <button type="button" onclick="pingAjax('HIDDEN')" class="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 active:scale-95">?action=whatsNewHidden</button>
+                        </div>
+                        <p id="ajax-result" class="mt-3 font-mono text-sm text-slate-500">{{ $t['new_pickRequest'] }}</p>
+                    </div>
+                </article>
+
+                <article id="demo-cscript" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <?php $demo = 'cscript'; ?><DemoHeader/>
+                    <pre id="cscript-result" class="mt-1.5 overflow-x-auto rounded-xl border border-dashed border-slate-300 p-4 font-mono text-[12.5px] text-slate-700"></pre>
+                </article>
+
+                <article id="demo-lang" class="min-w-0 scroll-mt-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <?php $demo = 'lang'; ?><DemoHeader/>
+                    <div class="mt-1.5 flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-slate-300 p-4 text-sm">
+                        <span class="font-mono text-slate-500">&lt;html lang="<strong id="html-lang" class="text-slate-900"></strong>"&gt;</span>
+                        <a href="?lang=en#demo-lang" class="rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-700 hover:bg-slate-200">English</a>
+                        <a href="?lang=cy#demo-lang" class="rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-700 hover:bg-slate-200">Cymraeg</a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- ============ Also fixed ============ -->
+        <section class="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+            <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ $t['new_alsoFixed'] }}</h2>
+            <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div p-for="$fix in $alsoFixed" class="rounded-2xl border border-slate-200 p-5">
+                    <h3 class="font-semibold text-slate-900">{{ $fix['title'] }}</h3>
+                    <p class="mt-1.5 text-sm leading-relaxed text-slate-600">{{ $fix['text'] }}</p>
+                </div>
+            </div>
+
+            <div class="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-slate-900 px-6 py-5 text-white">
+                <p class="font-medium">{{ $t['new_upgrade'] }}</p>
+                <a href="https://phpue.co.uk/ue-releases" target="_blank" rel="noopener" class="rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">{{ $t['new_releaseNotes'] }}</a>
+            </div>
+        </section>
+    </main>
+</template>
+
+<cscript>
+    // Nested <template>: clone its content on demand
+    function cloneToast() {
+        const tpl = document.getElementById('toast-tpl');
+        document.getElementById('toast-target').appendChild(tpl.content.cloneNode(true));
+    }
+
+    // @AJAX method enforcement, live
+    async function pingAjax(kind) {
+        const target = document.getElementById('ajax-result');
+        let response;
+
+        if (kind === 'POST') {
+            response = await fetch('', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({action: 'whatsNewPing'})
+            });
+        } else if (kind === 'GET') {
+            response = await fetch('?action=whatsNewPing');
+        } else {
+            response = await fetch('?action=whatsNewHidden');
+        }
+
+        const body = await response.text();
+        const verdict = kind === 'HIDDEN'
+            ? (body.trim().startsWith('HIDDEN-' + 'FUNCTION-RAN') ? 'function ran (bad!)' : 'not callable, normal page returned')
+            : body.slice(0, 80);
+
+        target.innerHTML = '';
+        const status = document.createElement('strong');
+        status.className = response.ok ? 'text-emerald-600' : 'text-rose-600';
+        status.textContent = response.status + ' ';
+        target.append(status, verdict);
+    }
+
+    // Array values straight from PHP
+    const stats = {{ $nested['stats'] }};
+    const first = {{ $stats[0] }};
+    document.getElementById('cscript-result').textContent =
+        'stats = ' + JSON.stringify(stats) + '\nfirst = ' + JSON.stringify(first);
+
+    // Whatever phpue_set_lang() chose for this request
+    document.getElementById('html-lang').textContent = document.documentElement.lang;
+</cscript>

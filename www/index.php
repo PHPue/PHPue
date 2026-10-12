@@ -1,8 +1,38 @@
 <?php
-    define('PHPUE_VERSION', '0.0.1');
-    
-    require_once 'conversion.php';
+    define('PHPUE_VERSION', '0.0.3');
 
+    /*  ================ VERSION 0.0.3 (bug-fix release) ================
+        - PHPUE_SESSION: 'auto' (default, starts a session on every request like 0.0.2) or 'lazy'
+            (only resumes an existing session, so anonymous pages stay cacheable; @AJAX POSTs and
+            phpue_session(true) start one when needed).
+        - PHPUE_DEV_TOOLS: ?compile=, ?hot-reload and web ?build only run in source mode (no .dist/App.php
+            or App.php) unless you define it yourself. ?compile= only accepts .pvue files in this project.
+        - Hot reload watches components/ and views/ recursively.
+        - Build: works without a components/ folder; @AJAX in nested components is collected.
+    */
+
+    /*  ================ VERSION 0.0.2 ================
+        - Added OB START - Can now send headers from backend/ or from .pvue files!
+        - Added a new deployment method, use .dist/ or copy and paste the files inside
+            .dist/ and extract them in root (www/, public_html/) as is!
+        - Added HTML LANG (instead of defaulting to 'en')
+        - Added Static View Langs (use <header><meta name="lang" content="br"></header>)
+        - Modified Hot Reload: Now will check for any file changes whether inside view/ 
+            or components/
+    */
+    if (php_sapi_name() === 'cli') {
+        $_SERVER['REQUEST_URI'] = $_SERVER['REQUEST_URI'] ?? '/';
+        $_SERVER['SERVER_NAME'] = $_SERVER['SERVER_NAME'] ?? 'localhost';
+        $_SERVER['SERVER_ADDR'] = $_SERVER['SERVER_ADDR'] ?? '127.0.0.1';
+    }
+
+    define('PHPUE_LANG', 'en');
+    if (!defined('PHPUE_SESSION')) define('PHPUE_SESSION', 'auto');   // 'auto' | 'lazy'
+
+    ob_start();
+
+    require_once 'conversion.php';
+    
     class PHPueServer {
         public $bDevMode;
         public $bLiveMode;
@@ -13,13 +43,19 @@
             $this->bLiveMode = isset($_GET['live']);
         }
 
+        // 0.0.3: developer endpoints are only exposed in source mode (or when PHPUE_DEV_TOOLS says so)
+        public function devToolsEnabled(): bool {
+            if (defined('PHPUE_DEV_TOOLS')) return (bool) PHPUE_DEV_TOOLS;
+            return !file_exists('.dist/App.php') && !file_exists('App.php');
+        }
+
         public function serve() {
-            if(isset($_GET['hot-reload'])) {
+            if(isset($_GET['hot-reload']) && $this->devToolsEnabled()) {
                 $this->handleHotReload();
                 return;
             }
 
-            if(isset($_GET['compile'])) {
+            if(isset($_GET['compile']) && $this->devToolsEnabled()) {
                 $this->handleCompilation();
                 return;
             }
@@ -28,15 +64,16 @@
         }
 
         public function build() {
-            global $argv; // Need to access argv inside the method
+            global $argv;
             
-            // Check if .dist/ exists AND this is NOT a CLI build command
+            $distAppExists = file_exists('.dist/App.php');
+            $standaloneAppExists = file_exists('App.php');
             $isCliBuild = (isset($argv[1]) && $argv[1] === 'build');
-            if (is_dir('.dist') && !$isCliBuild) {
-                echo "❌ Build disabled - .dist/ directory already exists\n";
-                echo "   This appears to be a production environment\n";
-                echo "   To force rebuild, use: php index.php build\n";
-                return;
+
+            if ((($distAppExists || $standaloneAppExists) || !$this->devToolsEnabled()) && !$isCliBuild) {
+                $basePath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+                header('Location: ' . $basePath);
+                exit;
             }
             
             $this->ensureDistDirectory();
@@ -70,7 +107,7 @@
             return $_SERVER['SERVER_NAME'] === 'localhost' || $_SERVER['SERVER_ADDR'] === '127.0.0.1' || isset($_GET['dev']);
         }
 
-       private function handleHotReload() {
+        private function handleHotReload() {
             $bLiveMode = isset($_GET['live']) || $this->bLiveMode;
             
             if (!$bLiveMode) {
@@ -99,10 +136,11 @@
                     ob_end_clean();
                 }
                 
+                // Get all .pvue and .php files in components/ and views/ (0.0.3: recursive; '**' was one level)
                 $files = array_merge(
-                    glob('*.pvue'),
-                    glob('components/*.pvue'), 
-                    glob('views/*.pvue')
+                    $this->findSourceFiles('components', ['pvue', 'php']),
+                    $this->findSourceFiles('views', ['pvue', 'php']),
+                    file_exists('App.pvue') ? ['App.pvue'] : []
                 );
 
                 $changed = false;
@@ -135,8 +173,17 @@
 
         private function handleCompilation()
         {
-            $file = $_GET['compile'];
+            $file = (string) $_GET['compile'];
             $bRoot = ($_GET['root'] ?? 'false') === 'true';
+
+            // 0.0.3: only .pvue files inside this project
+            $realFile = realpath($file);
+            $realRoot = realpath(getcwd());
+            if ($realFile === false || substr($realFile, -5) !== '.pvue' || strpos($realFile, $realRoot . DIRECTORY_SEPARATOR) !== 0) {
+                http_response_code(404);
+                echo "Compilation Error: unknown .pvue file";
+                return;
+            }
 
             try {
                 $phpCode = convert_pvue_file($file, $bRoot);
@@ -151,6 +198,7 @@
         private function serveApp()
         {
             $distApp = '.dist/App.php';
+            $standaloneApp = 'App.php'; 
             $appPVue = 'App.pvue';
             
             $currentRoute = $_GET['page'] ?? 'index';
@@ -164,14 +212,25 @@
             
             if(file_exists($distApp) && is_dir('.dist')) {
                 $this->serveFromDist();
-            } elseif(file_exists($appPVue)) {
+            }
+
+            elseif(file_exists($standaloneApp)) {
+                $this->serveFromStandalone();
+            }
+
+            elseif(file_exists($appPVue)) {
                 $this->serveFromSource();
-            } else {
+            } 
+            
+            else {
                 http_response_code(500);
-                echo "Error: Neither App.pvue nor .dist/App.php found";
+                echo "Error: No App file found. Looking for:<br>";
+                echo "- .dist/App.php (compiled)<br>";
+                echo "- App.php (standalone)<br>";
+                echo "- App.pvue (source)<br>";
             }
         }
-        
+
         private function serveFromDist() {
             $distApp = '.dist/App.php';
             
@@ -182,7 +241,18 @@
                 echo "Error: .dist/App.php not found";
             }
         }
-        
+
+        private function serveFromStandalone() {
+            $standaloneApp = 'App.php';
+            
+            if(file_exists($standaloneApp)) {
+                include $standaloneApp;
+            } else {
+                http_response_code(500);
+                echo "Error: App.php not found";
+            }
+        }
+
         private function serveFromSource() {
             $appPVue = 'App.pvue';
             
@@ -209,7 +279,8 @@
                 $converter->preProcessForAjax($content, $view);
             }
             
-            $components = glob('components/*.pvue');
+            // 0.0.3: nested component folders too (their @AJAX handlers used to be missed)
+            $components = $this->findSourceFiles('components', ['pvue']);
             foreach ($components as $component) {
                 $content = file_get_contents($component);
                 $converter->preProcessForAjax($content, $component);
@@ -237,9 +308,10 @@
                 echo "✅ Compiled: $appPVue -> $appPHP\n";
             }
 
-            $iterator = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator('components', RecursiveDirectoryIterator::SKIP_DOTS)
-            );
+            // 0.0.3: a project without components/ used to crash the build here
+            $iterator = is_dir('components')
+                ? new RecursiveIteratorIterator(new RecursiveDirectoryIterator('components', RecursiveDirectoryIterator::SKIP_DOTS))
+                : [];
 
             foreach ($iterator as $file) {
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
@@ -282,6 +354,19 @@
             echo "✅ Generated AJAX handler files\n";
 
             $this->copyAssetsToDist();
+        }
+
+        /** 0.0.3: recursive, sorted file list (for hot reload and AJAX pre-processing). */
+        private function findSourceFiles(string $dir, array $extensions): array {
+            if (!is_dir($dir)) return [];
+            $files = [];
+            foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS)) as $file) {
+                if ($file->isFile() && in_array($file->getExtension(), $extensions, true)) {
+                    $files[] = str_replace('\\', '/', $file->getPathname());
+                }
+            }
+            sort($files);
+            return $files;
         }
 
         private function copyBackendLoaders() {
@@ -376,7 +461,7 @@
         $request_uri = $_SERVER['REQUEST_URI'];
         $path = parse_url($request_uri, PHP_URL_PATH);
         
-        $path = trim($path, '/');
+        $path = trim((string)$path, '/');
         
         if (empty($path)) {
             return 'index';
@@ -395,4 +480,6 @@
     }
 
     $server->serve();
+    ob_end_flush();
+    /*  ================ END | VERSION 0.0.2 | END ================ */
 ?>

@@ -1,0 +1,84 @@
+<script>
+    // Every view registered in App.pvue becomes a link (index => Home, whats-new => What's new).
+    // Labels come from the language pack, so they switch with ?lang=cy.
+    $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+
+    $navRoutes = phpue_navigation();
+    usort($navRoutes, fn($a, $b) => ($b['name'] === 'index') <=> ($a['name'] === 'index')); // Home first
+
+    $navLinks = [];
+    foreach ($navRoutes as $route) {
+        $bActive = rtrim($currentPath, '/') === rtrim($route['url'], '/');
+        $navLinks[] = [
+            'url'   => $route['url'],
+            'label' => Lang::t('nav_' . $route['name']),
+            'class' => $bActive ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+        ];
+    }
+
+    $langLinks = Lang::links();
+</script>
+
+<template>
+    <nav class="sticky top-0 z-50 border-b border-slate-200/70 bg-white/75 backdrop-blur-xl">
+        <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-4 sm:px-6">
+            <!-- Brand -->
+            <a href="/" class="flex items-center gap-2.5">
+                <img src="/assets/img/logo-ico.png" alt="" class="h-8 w-8">
+                <span class="text-xl font-extrabold tracking-tight text-ue-navy">PHP<span class="text-ue-lime">ue</span></span>
+                <span class="hidden rounded-full bg-ue-amber/15 px-2 py-0.5 font-mono text-[11px] font-semibold text-amber-700 sm:inline">example &middot; v<?= PHPUE_VERSION ?></span>
+            </a>
+
+            <!-- Desktop links -->
+            <div class="hidden flex-1 items-center gap-1 md:flex">
+                <a p-for="$link in $navLinks" href="{{ $link['url'] }}" class="rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors {{ $link['class'] }}">{{ $link['label'] }}</a>
+            </div>
+
+            <!-- Desktop actions -->
+            <div class="hidden items-center gap-3 md:flex">
+                <div class="flex rounded-full border border-slate-200 bg-white p-0.5 text-xs font-semibold" role="group" aria-label="{{ Lang::t('nav_language') }}">
+                    <a p-for="$langLink in $langLinks" href="{{ $langLink['url'] }}" hreflang="{{ $langLink['code'] }}" title="{{ $langLink['label'] }}" class="rounded-full px-2.5 py-1 uppercase transition-colors <?= $langLink['bActive'] ? 'bg-ue-blue text-white' : 'text-slate-500 hover:text-slate-900' ?>">{{ $langLink['code'] }}</a>
+                </div>
+                <a href="https://github.com/PHPue/PHPue" target="_blank" rel="noopener" aria-label="PHPue on GitHub" class="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                </a>
+                <a href="https://phpue.co.uk/docs" target="_blank" rel="noopener" class="rounded-full bg-ue-blue px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-ue-blue/30 transition hover:bg-ue-navy">{{ Lang::t('nav_docs') }}</a>
+            </div>
+
+            <!-- Mobile toggle -->
+            <button type="button" class="rounded-lg p-2 text-slate-700 hover:bg-slate-100 md:hidden" aria-controls="mobile-menu" aria-expanded="false" aria-label="{{ Lang::t('nav_menu') }}">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+        </div>
+
+        <!-- Mobile menu -->
+        <div class="hidden border-t border-slate-200 bg-white px-4 pb-4 pt-2 md:hidden" id="mobile-menu">
+            <a p-for="$link in $navLinks" href="{{ $link['url'] }}" class="block rounded-lg px-3 py-2 text-base font-medium {{ $link['class'] }}">{{ $link['label'] }}</a>
+            <a href="https://phpue.co.uk/docs" target="_blank" rel="noopener" class="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-100">{{ Lang::t('nav_docs') }}</a>
+            <a href="https://github.com/PHPue/PHPue" target="_blank" rel="noopener" class="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-100">GitHub</a>
+            <div class="mt-3 flex gap-2 border-t border-slate-100 px-3 pt-3 text-sm">
+                <a p-for="$langLink in $langLinks" href="{{ $langLink['url'] }}" hreflang="{{ $langLink['code'] }}" class="rounded-full px-3 py-1 font-medium <?= $langLink['bActive'] ? 'bg-ue-blue text-white' : 'bg-slate-100 text-slate-600' ?>">{{ $langLink['label'] }}</a>
+            </div>
+        </div>
+    </nav>
+</template>
+
+<cscript>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggle = document.querySelector('[aria-controls="mobile-menu"]');
+        const menu = document.getElementById('mobile-menu');
+        if (!toggle || !menu) return;
+
+        const ICON_OPEN = '<path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />';
+        const ICON_CLOSE = '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />';
+
+        function setOpen(bOpen) {
+            toggle.setAttribute('aria-expanded', String(bOpen));
+            menu.classList.toggle('hidden', !bOpen);
+            toggle.querySelector('svg').innerHTML = bOpen ? ICON_CLOSE : ICON_OPEN;
+        }
+
+        toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+        menu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => setOpen(false)));
+    });
+</cscript>
