@@ -1,0 +1,16 @@
+<!-- 0.0.3 test fixture: used as <FixBadge /> (with a space), lives in a NESTED components/ folder,
+     and declares an @AJAX handler with double quotes and a return type. 0.0.2 could not compile the
+     annotation, and its build dropped component handlers entirely. -->
+<script>
+    $badgeLabel = $badgeLabel ?? 'Component';
+
+    @AJAX("POST")
+    function fixComponentPing(array $input = array()): void {
+        header('Content-Type: application/json');
+        echo json_encode(['pong' => true, 'echo' => $input['value'] ?? null]);
+    }
+</script>
+
+<template>
+    <span class="fix-badge inline-block px-2 py-0.5 rounded-full bg-emerald-400/15 text-emerald-300 ring-1 ring-inset ring-emerald-400/30 text-xs">{{ $badgeLabel }}</span>
+</template>

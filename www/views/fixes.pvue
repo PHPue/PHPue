@@ -1,0 +1,315 @@
+<!-- Author: Edward Patch -->
+<!-- PHPue 0.0.3 bug-fix test bench: every section below exercises one 0.0.2 bug; the client-side
+     checker at the bottom marks each test PASS/FAIL. Open /fixes (also after `php index.php build`). -->
+<script>
+    // A literal <header> and <template> in a PHP comment: 0.0.2 treated them as the real blocks.
+    @require FixBadge 'components/tests/FixBadge.pvue';
+
+    $bShow   = true;
+    $tone    = 'bg-emerald-400/15';
+    $items   = ['Alpha', 'Beta', 'Gamma'];
+    $numbers = [1, 2, 3, 4, 5, 6];
+    $groups  = ['Fruit' => ['apple', 'pear'], 'Veg' => ['leek']];
+    $data    = ['nested' => ['value' => 42, 'label' => 'from PHP']];
+
+    // A normal PHP function: 0.0.2's dispatcher would run ANY function named in ?action=
+    function fixesSecret() { echo 'SECRET-RAN'; }
+
+    @AJAX('POST')
+    function fixesPostOnly($input) {
+        header('Content-Type: application/json');
+        echo json_encode(['ok' => true, 'method' => $_SERVER['REQUEST_METHOD']]);
+    }
+</script>
+
+<header>
+    <title>0.0.3 Test Bench | PHPue</title>
+    <!-- a <title> inside a comment no longer becomes the page title -->
+    <meta name="lang" content="en-GB">
+</header>
+
+<template>
+    <main class="mx-auto max-w-6xl px-4 py-12 sm:px-6" id="fixes">
+        <div class="flex flex-wrap items-end justify-between gap-6">
+            <div>
+                <p class="font-mono text-sm font-semibold uppercase tracking-widest text-ue-amber"><span aria-hidden="true">// </span>PHPue 0.0.3</p>
+                <h1 class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">Bug-fix test bench</h1>
+                <p class="mt-3 max-w-2xl text-slate-300">Each card renders markup that broke in 0.0.2. The checks run in your browser after the page loads.</p>
+            </div>
+            <div class="w-full rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:w-64">
+                <strong id="fix-summary" class="text-slate-300">Running checks&hellip;</strong>
+                <div class="mt-3 h-2 overflow-hidden rounded-full bg-white/10"><div id="fix-progress" class="h-full w-0 rounded-full bg-emerald-400 shadow-[0_0_12px] shadow-emerald-400/60 transition-all duration-500"></div></div>
+            </div>
+        </div>
+
+        <h2 class="mt-12 font-mono text-sm font-semibold uppercase tracking-widest text-slate-400">Template compilation</h2>
+        <div class="mt-4 grid gap-4 md:grid-cols-2">
+            <article class="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors" data-card="1">
+                <div class="flex items-start gap-3">
+                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/10 font-mono text-xs font-semibold text-slate-200">1</span>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="font-semibold leading-7 text-white">Single-line p-if</h2>
+                        <p class="mt-0.5 text-sm text-slate-400">0.0.2 deleted the content and left the <code>if</code> open.</p>
+                    </div>
+                    <span data-status="1" class="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-300">&hellip;</span>
+                </div>
+                <div class="mt-4 flex-1 rounded-xl border border-white/10 bg-black/30 p-3 font-mono text-[13px] leading-relaxed text-slate-200">
+                    <section class="fix" data-test="1"><p p-if="$bShow" id="t1">Single-line p-if renders</p><p p-if="!$bShow" id="t1-neg">must not render</p></section>
+                </div>
+            </article>
+            <article class="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors" data-card="2">
+                <div class="flex items-start gap-3">
+                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/10 font-mono text-xs font-semibold text-slate-200">2</span>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="font-semibold leading-7 text-white">Mustache in a p-if element&rsquo;s attributes</h2>
+                        <p class="mt-0.5 text-sm text-slate-400">0.0.2 cut the tag at the generated <code>?&gt;</code>.</p>
+                    </div>
+                    <span data-status="2" class="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-300">&hellip;</span>
+                </div>
+                <div class="mt-4 flex-1 rounded-xl border border-white/10 bg-black/30 p-3 font-mono text-[13px] leading-relaxed text-slate-200">
+                    <section class="fix" data-test="2"><span p-if="$bShow" id="t2" class="badge {{ $tone }} rounded px-1.5 text-emerald-300">badge</span> <span id="t2-after">sibling intact</span></section>
+                </div>
+            </article>
+            <article class="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors" data-card="3">
+                <div class="flex items-start gap-3">
+                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/10 font-mono text-xs font-semibold text-slate-200">3</span>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="font-semibold leading-7 text-white">Same-tag children inside p-if</h2>
+                        <p class="mt-0.5 text-sm text-slate-400">0.0.2 closed the <code>if</code> at the first <code>&lt;/div&gt;</code>.</p>
+                    </div>
+                    <span data-status="3" class="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-300">&hellip;</span>
+                </div>
+                <div class="mt-4 flex-1 rounded-xl border border-white/10 bg-black/30 p-3 font-mono text-[13px] leading-relaxed text-slate-200">
+                    <section class="fix" data-test="3">
+                        <div p-if="$bShow" id="t3">
+                            <div>first</div><div>second</div>
+                            <div>third</div>
+                        </div>
+                        <div id="t3-after" class="text-slate-400">after</div>
+                    </section>
+                </div>
+            </article>
+            <article class="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors" data-card="4">
+                <div class="flex items-start gap-3">
+                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/10 font-mono text-xs font-semibold text-slate-200">4</span>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="font-semibold leading-7 text-white">Same tag nested in p-for</h2>
+                        <p class="mt-0.5 text-sm text-slate-400">0.0.2 ended the loop at the first <code>&lt;/div&gt;</code>.</p>
+                    </div>
+                    <span data-status="4" class="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-300">&hellip;</span>
+                </div>
+                <div class="mt-4 flex-1 rounded-xl border border-white/10 bg-black/30 p-3 font-mono text-[13px] leading-relaxed text-slate-200">
+                    <section class="fix" data-test="4" id="t4">
+                        <div p-for="$item in $items" class="t4-item">
+                            <div class="t4-inner">{{ $item }}</div>
+                        </div>
+                        <div id="t4-after" class="text-slate-400">after the loop</div>
+                    </section>
+                </div>
+            </article>
+            <article class="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors" data-card="5">
+                <div class="flex items-start gap-3">
+                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/10 font-mono text-xs font-semibold text-slate-200">5</span>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="font-semibold leading-7 text-white">p-for + p-if on one element</h2>
+                        <p class="mt-0.5 text-sm text-slate-400">0.0.2 dropped the <code>foreach</code>. Expect the even numbers.</p>
+                    </div>
+                    <span data-status="5" class="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-300">&hellip;</span>
+                </div>
+                <div class="mt-4 flex-1 rounded-xl border border-white/10 bg-black/30 p-3 font-mono text-[13px] leading-relaxed text-slate-200">
+                    <ul class="fix flex gap-2" data-test="5"><li p-for="$n in $numbers" p-if="$n % 2 === 0" class="t5 rounded bg-white/5 px-2 ring-1 ring-white/15">{{ $n }}</li></ul>
+                </div>
+            </article>
+            <article class="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors" data-card="6">
+                <div class="flex items-start gap-3">
+                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/10 font-mono text-xs font-semibold text-slate-200">6</span>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="font-semibold leading-7 text-white">p-for over range() and a Traversable</h2>
+                        <p class="mt-0.5 text-sm text-slate-400">0.0.2 hit an <code>isset()</code> fatal or skipped silently.</p>
+                    </div>
+                    <span data-status="6" class="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-300">&hellip;</span>
+                </div>
+                <div class="mt-4 flex-1 rounded-xl border border-white/10 bg-black/30 p-3 font-mono text-[13px] leading-relaxed text-slate-200">
+                    <ul class="fix flex flex-wrap gap-2" data-test="6">
+                        <li p-for="$i in range(1, 3)" class="t6-range rounded bg-white/5 px-2 ring-1 ring-white/15">{{ $i }}</li>
+                        <li p-for="$k => $v in new ArrayIterator(['a' => 1, 'b' => 2])" class="t6-iter rounded bg-white/5 px-2 ring-1 ring-white/15">{{ $k }}={{ $v }}</li>
+                    </ul>
+                </div>
+            </article>
+            <article class="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors" data-card="7">
+                <div class="flex items-start gap-3">
+                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/10 font-mono text-xs font-semibold text-slate-200">7</span>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="font-semibold leading-7 text-white"><code>&gt;</code> and <code>=&gt;</code> in attributes</h2>
+                        <p class="mt-0.5 text-sm text-slate-400">Single-quoted p-if with arrows in sibling attributes.</p>
+                    </div>
+                    <span data-status="7" class="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-300">&hellip;</span>
+                </div>
+                <div class="mt-4 flex-1 rounded-xl border border-white/10 bg-black/30 p-3 font-mono text-[13px] leading-relaxed text-slate-200">
+                    <section class="fix" data-test="7"><div p-if='$bShow' id="t7" data-rule="a > b" data-js="items.map(i => i)">arrow-safe</div></section>
+                </div>
+            </article>
+            <article class="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors" data-card="8">
+                <div class="flex items-start gap-3">
+                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/10 font-mono text-xs font-semibold text-slate-200">8</span>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="font-semibold leading-7 text-white">Function calls in mustache</h2>
+                        <p class="mt-0.5 text-sm text-slate-400">0.0.2 printed them literally. Non-PHP mustache stays as written.</p>
+                    </div>
+                    <span data-status="8" class="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-300">&hellip;</span>
+                </div>
+                <div class="mt-4 flex-1 rounded-xl border border-white/10 bg-black/30 p-3 font-mono text-[13px] leading-relaxed text-slate-200">
+                    <section class="fix space-x-3" data-test="8"><span id="t8-count">{{ count($items) }}</span> <span id="t8-upper">{{ strtoupper('phpue') }}</span> <span id="t8-literal">{{ item.name }}</span></section>
+                </div>
+            </article>
+            <article class="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors" data-card="9">
+                <div class="flex items-start gap-3">
+                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/10 font-mono text-xs font-semibold text-slate-200">9</span>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="font-semibold leading-7 text-white">Nested <code>&lt;template&gt;</code> element</h2>
+                        <p class="mt-0.5 text-sm text-slate-400">0.0.2 ended the PHPue template at the first close tag.</p>
+                    </div>
+                    <span data-status="9" class="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-300">&hellip;</span>
+                </div>
+                <div class="mt-4 flex-1 rounded-xl border border-white/10 bg-black/30 p-3 font-mono text-[13px] leading-relaxed text-slate-200">
+                    <section class="fix" data-test="9">
+                        <template id="t9-tpl"><span class="t9-clone">cloned from a template element</span></template>
+                        <div id="t9-target"></div>
+                    </section>
+                </div>
+            </article>
+            <article class="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors" data-card="10">
+                <div class="flex items-start gap-3">
+                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/10 font-mono text-xs font-semibold text-slate-200">10</span>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="font-semibold leading-7 text-white">Bare <code>&lt;header&gt;</code> in the template</h2>
+                        <p class="mt-0.5 text-sm text-slate-400">0.0.2 stripped it as if it were the header block.</p>
+                    </div>
+                    <span data-status="10" class="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-300">&hellip;</span>
+                </div>
+                <div class="mt-4 flex-1 rounded-xl border border-white/10 bg-black/30 p-3 font-mono text-[13px] leading-relaxed text-slate-200">
+                    <header id="t10" class="fix" data-test="10">A header element inside the template is kept</header>
+                </div>
+            </article>
+            <article class="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors" data-card="11">
+                <div class="flex items-start gap-3">
+                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/10 font-mono text-xs font-semibold text-slate-200">11</span>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="font-semibold leading-7 text-white"><code>&lt;FixBadge /&gt;</code> from a nested folder</h2>
+                        <p class="mt-0.5 text-sm text-slate-400">Spaced self-closing component in <code>components/tests/</code>.</p>
+                    </div>
+                    <span data-status="11" class="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-300">&hellip;</span>
+                </div>
+                <div class="mt-4 flex-1 rounded-xl border border-white/10 bg-black/30 p-3 font-mono text-[13px] leading-relaxed text-slate-200">
+                    <section class="fix" data-test="11"><?php $badgeLabel = 'nested component'; ?><FixBadge /></section>
+                </div>
+            </article>
+            <article class="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors" data-card="12">
+                <div class="flex items-start gap-3">
+                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/10 font-mono text-xs font-semibold text-slate-200">12</span>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="font-semibold leading-7 text-white">Void element with p-if</h2>
+                        <p class="mt-0.5 text-sm text-slate-400"><code>&lt;input&gt;</code> has no closing tag to search for.</p>
+                    </div>
+                    <span data-status="12" class="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-300">&hellip;</span>
+                </div>
+                <div class="mt-4 flex-1 rounded-xl border border-white/10 bg-black/30 p-3 font-mono text-[13px] leading-relaxed text-slate-200">
+                    <section class="fix" data-test="12"><input p-if="$bShow" id="t12" value="void ok" readonly class="rounded border border-white/15 bg-ink-950 px-2 text-slate-100"></section>
+                </div>
+            </article>
+            <article class="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors" data-card="13">
+                <div class="flex items-start gap-3">
+                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/10 font-mono text-xs font-semibold text-slate-200">13</span>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="font-semibold leading-7 text-white">Nested p-for</h2>
+                        <p class="mt-0.5 text-sm text-slate-400">Inner loop reads the outer item. 0.0.2 left the inner <code>php-for</code> raw.</p>
+                    </div>
+                    <span data-status="13" class="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-300">&hellip;</span>
+                </div>
+                <div class="mt-4 flex-1 rounded-xl border border-white/10 bg-black/30 p-3 font-mono text-[13px] leading-relaxed text-slate-200">
+                    <section class="fix space-y-2" data-test="13" id="t13">
+                        <div p-for="$groupName => $entries in $groups" class="t13-group">
+                            <span class="t13-name font-semibold">{{ $groupName }}</span>
+                            <ul class="ml-4 list-disc"><li p-for="$entry in $entries" class="t13-item">{{ $groupName }}:{{ $entry }}</li></ul>
+                        </div>
+                        <div id="t13-after" class="text-slate-400">after the outer loop</div>
+                    </section>
+                </div>
+            </article>
+        </div>
+
+        <h2 class="mt-12 font-mono text-sm font-semibold uppercase tracking-widest text-slate-400">Runtime, header and @AJAX</h2>
+        <ul id="fix-results" class="mt-4 divide-y divide-white/10 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] text-sm"></ul>
+    </main>
+</template>
+
+<cscript>
+    // 0.0.3: {{ }} in cscript accepts any $expression, not just a variable name
+    const nestedValue = {{ $data['nested']['value'] }};
+    const nestedLabel = {{ $data['nested']['label'] }};
+
+    (async function () {
+        const $ = (s) => document.querySelector(s);
+        const results = [];
+        const check = (n, name, ok) => results.push({ n, name, ok: !!ok });
+
+        check(1, 'single-line p-if renders, false one omitted', $('#t1') && !$('#t1-neg'));
+        check(2, 'mustache in p-if element attributes', $('#t2')?.classList.contains('bg-emerald-400/15') && $('#t2-after') && !$('#t2').contains($('#t2-after')));
+        check(3, 'same-tag children inside p-if', $('#t3')?.children.length === 3 && $('#t3-after') && !$('#t3').contains($('#t3-after')));
+        check(4, 'same tag nested in p-for', document.querySelectorAll('#t4 > .t4-item').length === 3 && [...document.querySelectorAll('.t4-item')].every(e => e.querySelectorAll('.t4-inner').length === 1) && $('#t4-after')?.parentElement.id === 't4');
+        check(5, 'p-for + p-if on one element', [...document.querySelectorAll('.t5')].map(e => e.textContent.trim()).join(',') === '2,4,6');
+        check(6, 'p-for over range() and ArrayIterator', document.querySelectorAll('.t6-range').length === 3 && [...document.querySelectorAll('.t6-iter')].map(e => e.textContent.trim()).join(',') === 'a=1,b=2');
+        check(7, "'>' / '=>' in attributes, single-quoted p-if", $('#t7')?.dataset.rule === 'a > b' && $('#t7')?.dataset.js === 'items.map(i => i)');
+        check(8, 'mustache count() / strtoupper() / literal item.name', $('#t8-count')?.textContent === '3' && $('#t8-upper')?.textContent === 'PHPUE' && $('#t8-literal')?.textContent === '{{ item.name }}');
+        const tpl = $('#t9-tpl'); if (tpl) $('#t9-target').append(tpl.content.cloneNode(true));
+        check(9, 'nested <template> element kept (rest of page intact)', $('#t9-target .t9-clone') && $('#fix-results'));
+        check(10, 'bare <header> element kept in template', $('header#t10'));
+        check(11, '<FixBadge /> (spaced, nested folder) rendered', $('[data-test="11"] .fix-badge')?.textContent.trim() === 'nested component');
+        check(12, 'void element with p-if', $('#t12')?.value === 'void ok');
+        check(13, 'nested p-for (key => value outer, inner reads outer)', document.querySelectorAll('#t13 > .t13-group').length === 2 && [...document.querySelectorAll('.t13-item')].map(e => e.textContent.trim()).join(',') === 'Fruit:apple,Fruit:pear,Veg:leek' && [...document.querySelectorAll('.t13-group')].every(g => g.querySelectorAll('.t13-item').length >= 1) && $('#t13-after')?.parentElement.id === 't13');
+        check(14, 'title from header block (comment ignored)', document.title === '0.0.3 Test Bench | PHPue');
+        check(15, '<html lang> from view meta at runtime', document.documentElement.lang === (new URLSearchParams(location.search).get('lang') || 'en-GB'));
+        check(16, 'cscript mustache with $data[..] expression', nestedValue === 42 && nestedLabel === 'from PHP');
+        check(17, 'App header mustache with $appMeta[..]', document.querySelector('meta[name="generator"]')?.content === 'PHPue 0.0.3');
+
+        // AJAX rules (live requests)
+        const post = (body) => fetch(location.pathname, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        try {
+            const ping = await post({ action: 'fixComponentPing', value: 'hi' }).then(r => r.json());
+            check(18, 'component @AJAX("POST") with return type', ping.pong === true && ping.echo === 'hi');
+        } catch (e) { check(18, 'component @AJAX("POST") with return type', false); }
+        const wrongMethod = await fetch(location.pathname + '?action=fixesPostOnly');
+        check(19, 'declared method enforced (GET → 405)', wrongMethod.status === 405);
+        const okMethod = await post({ action: 'fixesPostOnly' });
+        check(20, 'declared method accepted (POST → 200)', okMethod.status === 200 && (await okMethod.json()).ok === true);
+        const notAjax = await fetch(location.pathname + '?action=fixesSecret').then(r => r.text());
+        check(21, 'non-@AJAX function not callable via ?action=', !notAjax.includes('SECRET' + '-RAN') && notAjax.includes('0.0.3 Test Bench'));
+        const builtin = await fetch(location.pathname + '?action=phpinfo').then(r => r.text());
+        check(22, 'PHP built-ins not callable via ?action=', !builtin.includes('PHP ' + 'License') && builtin.includes('0.0.3 Test Bench'));
+
+        const passed = results.filter(r => r.ok).length;
+        const allPassed = passed === results.length;
+        const pill = (ok) => 'shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ' + (ok ? 'bg-emerald-400/15 text-emerald-300 ring-1 ring-inset ring-emerald-400/30' : 'bg-red-400/15 text-red-300 ring-1 ring-inset ring-red-400/30');
+        $('#fix-summary').textContent = `${passed}/${results.length} checks passed`;
+        $('#fix-summary').className = allPassed ? 'text-emerald-400' : 'text-red-400';
+        $('#fix-progress').style.width = `${(passed / results.length) * 100}%`;
+        if (!allPassed) $('#fix-progress').classList.replace('bg-emerald-400', 'bg-red-400');
+
+        for (const r of results) {
+            const status = document.querySelector(`[data-status="${r.n}"]`);
+            if (status) {
+                // fixture card: badge in its header, red outline on failure
+                status.textContent = r.ok ? 'PASS' : 'FAIL';
+                status.className = pill(r.ok);
+                if (!r.ok) document.querySelector(`[data-card="${r.n}"]`).classList.replace('border-white/10', 'border-red-400/60');
+                continue;
+            }
+            const li = document.createElement('li');
+            li.className = 'flex items-center gap-3 px-4 py-3';
+            li.innerHTML = `<span class="w-6 font-mono text-xs text-slate-400">${r.n}</span><span class="flex-1 text-slate-200"></span><span class="${pill(r.ok)}">${r.ok ? 'PASS' : 'FAIL'}</span>`;
+            li.children[1].textContent = r.name;
+            $('#fix-results').append(li);
+        }
+        window.__phpueFixes = { passed, total: results.length, failed: results.filter(r => !r.ok).map(r => r.n + ' ' + r.name) };
+    })();
+</cscript>
