@@ -1,118 +1,150 @@
-# ❤️ PHP Power + Vue Syntax = PHPue | <img src="https://phpue.co.uk/assets/img/favicon_io/android-chrome-512x512.png" width="45" height="45" alt="PHPue Logo">
+<div align="center">
 
-> **Build Vue-like apps in pure PHP • Hot reload included • 1200+ developers believe in less complexity and developer joy!**
+<img src="https://phpue.co.uk/assets/img/favicon_io/android-chrome-512x512.png" width="96" height="96" alt="PHPue logo">
 
-> *Join the movement today and build PHPue Websites Today!*
+# PHPue
 
-[![PHP 7.4+](https://img.shields.io/badge/PHP-7.4+-brightgreen.svg)](https://php.net)
+**PHP power. Vue-like joy.**
+
+Server-rendered apps from single-file components, with hot reload, file-based routing and AJAX built in.<br>
+No bundler. No `node_modules`. Just PHP.
+
+[![PHP 7.4+](https://img.shields.io/badge/PHP-7.4+-777bb4.svg)](https://php.net)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Used by 1200+](https://img.shields.io/badge/Users-1200+-orange.svg)](https://phpue.co.uk)
+[![Used by 1500+](https://img.shields.io/badge/Users-2500+-orange.svg)](https://phpue.co.uk)
 [![Live Demo](https://img.shields.io/badge/Live-Demo-success.svg)](https://phpue.co.uk/)
 
-**Official Website:** [PHPue](https://phpue.co.uk) | **Official Documentation:** [PHPue Documentation](https://phpue.co.uk/docs)
----
-[PHPue Insights](https://phpue.co.uk/ue-insights) - [PHPue Releases](https://phpue.co.uk/ue-releases) - [PHPue Deployment](https://phpue.co.uk/deployment)
----
+[Website](https://phpue.co.uk) · [Docs](https://phpue.co.uk/docs) · [Tutorials](https://phpue.co.uk/ue-tutorials) · [Releases](https://phpue.co.uk/ue-releases) · [Insights](https://phpue.co.uk/ue-insights) · [Deployment](https://phpue.co.uk/deployment)
+
+</div>
+
 ---
 
-## ⚡ **Try it in 30 seconds (no joke)**
+## 🚀 Get started
 
 ```bash
-# 1. Download the 2 essential files
 git clone https://github.com/PHPue/PHPue.git
-
-# 2. Create your first app
-cat > App.pvue << 'EOF'
-<template>
-    <div style="text-align: center; padding: 3rem;">
-        <h1>🎉 Welcome to PHPue!</h1>
-        <p>You're running Vue-like syntax in PHP!</p>
-        <button onclick="showAlert()">Click me!</button>
-    </div>
-</template>
-
-<cscript>
-    function showAlert() {
-        alert("PHPue is working!");
-    }
-</cscript>
-EOF
-
-# 3. Run it with hot reload
-php -S localhost:8000
+cd PHPue/www
+php -S localhost:3000
 ```
 
-**Now open:** ```http://localhost:8000?live=1``` - Edit the file, and watch it auto-refresh! 🔥
+Open **http://localhost:3000/?live**, then edit `www/views/index.pvue`. The page reloads as you save. 🔥
 
-```phpue
-<!-- Write Vue components that run in PHP -->
+<details>
+<summary>Prefer Docker?</summary>
+
+```bash
+docker compose up
+```
+
+PHP-FPM and NGINX are set up for you at **http://localhost:3000**.
+</details>
+
+### 📦 Build for production
+
+```bash
+cd www
+php index.php build
+```
+
+Everything compiles into `www/.dist/`. Upload its contents to any PHP host (`public_html/`, `/var/www/html`, …). The `.htaccess` and [`nginx/default.conf`](nginx/default.conf) for routing are included. See the [deployment guide](https://phpue.co.uk/deployment).
+
+> **Heads up:** while `.dist/` exists, the server serves the compiled files. Rebuild or delete it to see your `.pvue` changes.
+
+---
+
+## 🎓 Learn PHPue
+
+Work through the tutorials in order, or jump to the one you need. [Browse all tutorials →](https://phpue.co.uk/ue-tutorials)
+
+| | Tutorial | What you'll learn |
+|---|---|---|
+| 1 | [**Setting up a server**](https://phpue.co.uk/ue-tutorials?tutorialName=setup-server) | Getting PHPue running with PHP CLI, XAMPP or Docker |
+| 2 | [**Your first app**](https://phpue.co.uk/ue-tutorials?tutorialName=first-app) | Views, components, `p-if` and `p-for` |
+| 3 | [**Styling your app**](https://phpue.co.uk/ue-tutorials?tutorialName=styling-your-app) | Tailwind and your own CSS |
+| 4 | [**AlpineJS foundations**](https://phpue.co.uk/ue-tutorials?tutorialName=alpinejs-foundations) | Client-side interactivity on top of server-rendered pages |
+
+📖 For the full reference, read the **[PHPue documentation](https://phpue.co.uk/docs)**.
+
+---
+
+## 🧩 Ecosystem
+
+| | Project | What it's for |
+|---|---|---|
+| 🔌 | [**PHPue Extensions**](https://github.com/PHPue/PHPue-Extensions) | Official extensions, one branch per category: **MetaControl** (dynamic SEO/meta), **Matrix CMS** (flat-file CMS), **x-ssr** (AlpineJS + server-rendered lists), the **Elementor bridge** for WordPress, and more |
+| 🎨 | [**Syntax Highlighter**](https://marketplace.visualstudio.com/items?itemName=PHPue.pvue-syntax) | `.pvue` highlighting for VS Code. Search *PHPue Syntax Highlighter* in Extensions ([source](https://github.com/ShinkuKira21/PHPue-SyntaxHighlighter)) |
+| 🤖 | [**PHPue for AI**](https://ai.phpue.co.uk/) | LLM-optimised docs plus [ready-made prompts](https://github.com/PHPue/PHPue-AI) so your AI assistant writes real PHPue |
+
+---
+
+## ✨ A taste
+
+```html
+<!-- www/views/tasks.pvue  →  served at /tasks -->
 <script>
-    // you'd normally have the Database class in backend/Database.php
-    // yes, it's auto included! so you only have to call `$db = new Database();`
-    class Database {
-        public function fetchPosts() {
-            return [
-                ['id' => 1, 'title' => 'First Post', 'content' => 'This is the first post.'],
-                ['id' => 2, 'title' => 'Second Post', 'content' => 'This is the second post.'],
-            ];
-        }
+    $tasks = ['Ship it', 'Celebrate'];
+
+    @AJAX('POST')
+    function addTask($input) {
+        echo json_encode(['added' => $input['task']]);
     }
-    
-    $db = new Database();
-    $posts = $db->fetchPosts(); // Real PHP database!
 </script>
 
+<header>
+    <title>Tasks</title>
+</header>
+
 <template>
-    <div p-for="$post in $posts" class="post-card">
-        <h3>{{ $post['title'] }}</h3>
-        <p>{{ $post['content'] }}</p>
-    </div>
+    <ul>
+        <li p-for="$task in $tasks">{{ $task }}</li>
+    </ul>
 </template>
 
 <cscript>
-    // PHP variables available in JavaScript!
-    console.log({{ $posts }});
+    console.log({{ $tasks }}); // PHP data, straight into JS
 </cscript>
 ```
 
+One file holds the server logic, head tags, markup and browser code. Register it in `App.pvue` with `#require 'views/tasks.pvue';` and it's live.
+
+---
+
+## 🗂️ What's in the box
+
+```text
+www/
+├── App.pvue          # app shell: head tags, Navbar, <View/>, Footer
+├── views/            # one file per route (index.pvue → /)
+├── components/       # reusable .pvue pieces, used as <Navbar/>
+├── assets/           # images, CSS, JS
+├── conversion.php    # the compiler: .pvue → PHP
+└── index.php         # router, dev server and `build` command
+```
+
+Need shared PHP classes? Create `www/backend/` and they're autoloaded.
+
+---
+
 ## 💡 Why PHPue?
-✅ Server-Side Rendering - Better SEO and performance
 
-✅ Hot Reload - Instant development feedback
+- **Server-side rendering.** Finished HTML on first paint, which helps SEO and speed.
+- **Single-file components** with a familiar, Vue-inspired syntax.
+- **File-based routing:** `views/about.pvue` is `/about`.
+- **`@AJAX` endpoints:** call a PHP function straight from `fetch()`.
+- **Plain PHP, always.** Drop to raw PHP anywhere. No lock-in.
+- **Runs anywhere PHP runs:** PHP CLI, XAMPP, Docker, shared hosting or FTP.
 
-✅ Vue-Inspired Syntax - Familiar and intuitive
+---
 
-✅ AJAX Decoration
+## ❤️ Support & contribute
 
-✅ Unified File Structure - Accessible PHP, HTML, and JS!
+PHPue is open source under the [Apache 2.0 licence](LICENSE). Issues, ideas and pull requests are welcome, and extensions are especially welcome on [PHPue Extensions](https://github.com/PHPue/PHPue-Extensions).
 
-✅ No Framework Lock In ! - Use PHP scripts where you need!
+If PHPue makes your day better, you can support it on [GitHub Sponsors](https://github.com/sponsors/ShinkuKira21) or [Patreon](https://www.patreon.com/phpue).
 
-✅ Auto Loader Classes (backend/) - Instead of Middleware!
+<div align="center">
 
-✅ PHP Power - Full access to PHP ecosystem
+**Built with ❤️ by [Edward Patch](https://github.com/ShinkuKira21) and 2500+ developers who believe in less complexity.**
 
-✅ Component-Based - Reusable and maintainable
-
-✅ Auto Routing - File-based routing system
-
-✅ PHP+JS Integration - Seamless variable passing
-
-✅ Production Ready - Build system for deployment
-
-## Production Build
-```
-# Build for production
-cd www/ && php index.php build
-cd .dist && zip -r ../dist.zip .
-
-# Deploy (just copy files or zip the .dist/ || contents of .dist/!)
-# Upload to public_html/ or /var/www/html and it's live!
-# (Make sure to setup .htaccess or nginx for the routing to work correctly)
-# Which is included in the main branch!
-```
-
-**🎉 Get Building!**
-PHPue gives you the best of both worlds: the simplicity and power of PHP with the modern developer experience of component-based frameworks. Start building your next amazing web application today! 🚀
-
-PHPue - Server-side rendering with Vue-like syntax. Fast, simple, powerful.
+</div>
