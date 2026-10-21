@@ -1,6 +1,8 @@
 services:
   php:
     image: php:8.2-fpm
+    # Always pull so existing installs pick up the patched PHP (CVE-2026-109618, CVE-2026-109619)
+    pull_policy: always
     volumes:
       - ./www:/var/www/html
     user: "1000:1000"
