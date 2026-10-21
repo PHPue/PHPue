@@ -9,7 +9,7 @@
 Server-rendered apps from single-file components, with hot reload, file-based routing and AJAX built in.<br>
 No bundler. No `node_modules`. Just PHP.
 
-[![PHP 7.4+](https://img.shields.io/badge/PHP-7.4+-777bb4.svg)](https://php.net)
+[![PHP 8.2+](https://img.shields.io/badge/PHP-8.2+-777bb4.svg)](https://php.net)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Used by 1500+](https://img.shields.io/badge/Users-2500+-orange.svg)](https://phpue.co.uk)
 [![Live Demo](https://img.shields.io/badge/Live-Demo-success.svg)](https://phpue.co.uk/)
@@ -17,6 +17,16 @@ No bundler. No `node_modules`. Just PHP.
 [Website](https://phpue.co.uk) · [Docs](https://phpue.co.uk/docs) · [Tutorials](https://phpue.co.uk/ue-tutorials) · [Releases](https://phpue.co.uk/ue-releases) · [Insights](https://phpue.co.uk/ue-insights) · [Deployment](https://phpue.co.uk/deployment)
 
 </div>
+
+---
+
+## 🔒 Security notice (21 October 2026)
+
+PHP has patched a critical vulnerability in the PHP runtime itself ("php2shell", CVE-2026-109618 and CVE-2026-109619). PHPue's code is not affected and needs no change.
+
+- Update your server to a patched PHP version: **8.5.12**, **8.4.27**, **8.3.36** or **8.2.35** (or newer).
+- Using Docker? Run `docker compose pull && docker compose up -d` to switch to the patched image.
+- Details: [NCSC alert](https://www.ncsc.gov.uk/news/critical-security-issue-affecting-php) · [PHP supported versions](https://www.php.net/supported-versions.php)
 
 ---
 
@@ -29,6 +39,8 @@ php -S localhost:3000
 ```
 
 Open **http://localhost:3000/?live**, then edit `www/views/index.pvue`. The page reloads as you save. 🔥
+
+> PHPue runs on **PHP 8.0 or newer**, but we recommend **PHP 8.2+**: PHP 8.0 and 8.1 no longer receive security fixes.
 
 <details>
 <summary>Prefer Docker?</summary>
